@@ -1,0 +1,34 @@
+'''
+Author: symlpigeon
+Date: 2022-11-08 15:49:30
+LastEditTime: 2022-11-09 17:08:15
+LastEditors: symlpigeon
+Description: 常数定义
+FilePath: /sim_bds/python/satellite_info/constants.py
+'''
+
+import numpy as np
+
+
+# 地心引力常数
+GEOCENTRIC_GRAVITATIONAL_CONSTANT = 3.986004418e14
+# 地球自转角速度
+EARTH_ROTATION_RATE = 7.2921151467e-5
+# MEO卫星轨道长半轴参考值
+MEO_SEMI_MAJOR_AXIS = 27906100
+# GEO卫星轨道长半轴参考值
+GEO_SEMI_MAJOR_AXIS = 42162200
+# IGSO卫星轨道长半轴参考值
+IGSO_SEMI_MAJOR_AXIS = 42162200
+# WGS84椭球体长半轴
+WGS84_SEMI_MAJOR_AXIS = 6378137.0000
+# WGS84椭球体短半轴
+WGS84_SEMI_MINOR_AXIS = 6356752.3141
+# 地球半径
+EARTH_RADIUS = 6378137.0000
+# 电离层薄层高度
+IONOSPHERE_SINGLE_LAYER_ALTITUDE = 400000
+# 地磁北极经度
+GEO_MAGNETIC_NORTH_POLE_LONGITUDE = -72.58 / 180 * np.pi
+# 地磁北极纬度
+GEO_MAGNETIC_NORTH_POLE_LATITUDE = 80.27 / 180 * np.pi
