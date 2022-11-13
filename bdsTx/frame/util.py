@@ -8,33 +8,11 @@ FilePath: /bdsTx/frame/util.py
 """
 
 from typing import Union
+import math
 
 
-def twos_comp(val: int, bits: int) -> int:
-
-    if (val & (1 << (bits - 1))) != 0:
-        val = val - (1 << bits)
-    return val
-
-
-def count_bits(data: int) -> int:
-    """计算二进制的位数
-
-    Args:
-        data (int): 数据
-
-    Returns:
-        int: 二进制位数
-    """
-    cnt = 0
-    while data:
-        data &= data - 1
-        cnt += 1
-    return cnt
-
-
-def data2bincomplement(data: Union[int, float], bitsize: int, ratio: int = 1) -> bytes:
-    """将十进制数转换为二进制补码形式的bytes, 长度不满8位LSB补零
+def data2bincomplement(data: Union[int, float], bitsize: int, ratio: int = 1) -> str:
+    """将十进制数转换成二进制形式的补码字符串
 
     Args:
         data (Union[int, float]): 数据
@@ -42,26 +20,14 @@ def data2bincomplement(data: Union[int, float], bitsize: int, ratio: int = 1) ->
         ratio (int, optional): 比例系数. Defaults to 1.
 
     Returns:
-        bytes: 返回的bytes
+        str: 01, str
     """
+    # 将数据按照比例系数换算
     data = int(data / ratio)
-    bitlen = count_bits(data)
-    if bitlen > bitsize:
-        data = data >> (bitlen - bitsize)
-    signbit = 1 << (bitsize - 1)
-    sign = data & signbit
-    mask = signbit - 1
-    if sign:
-        data = -(data & mask)
-    # LSB 补上满到8位的0
-    data <<= (8 - bitsize % 8) % 8
-    ans = b""
-    while data:
-        lsb = data & 0xFF
-        ans = lsb.to_bytes(1, "big") + ans
-        data >>= 4
-    return ans
+    # 转换为补码
+    data = int.from_bytes(data.to_bytes(math.ceil(bitsize / 8), "big", signed=True), "big")
+    return bin(data)[2:].zfill(bitsize)[-bitsize:]
 
 
 if __name__ == "__main__":
-    print(count_bits(-3))
+    print(data2bincomplement(-1231, 13))
