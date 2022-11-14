@@ -18,3 +18,4 @@ def make_subframe2(curr_time: float, ephemeris: dict) -> bytes:
     how = int(bds_second / 3600) & 0xFF
     iode = ephemeris["iode/aode"] & 0x3FF
     iodc = ephemeris["iodc/aodc"] & 0xFF
+    
