@@ -24,6 +24,7 @@ def ldpc64(mat: np.ndarray, data: np.ndarray) -> np.ndarray:
     """
     Poly = galois.Poly([1, 0, 0, 0, 0, 1, 1])
     GF = galois.GF(2**6, irreducible_poly=Poly)
+    mat = GF(mat)
     assert mat.shape[0] == data.shape[0]
     data = GF(data)
     return np.array(np.dot(mat.T, data.T).T.tolist(), dtype=np.uint8)

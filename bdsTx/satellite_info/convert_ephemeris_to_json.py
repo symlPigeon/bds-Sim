@@ -1,13 +1,15 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 19:22:21
-LastEditTime: 2022-11-09 20:39:21
+LastEditTime: 2022-11-14 17:15:57
 LastEditors: symlpigeon
 Description: 将星历文件转换为json格式
-FilePath: /sim_bds/python/satellite_info/convert_ephemeris_to_json.py
+FilePath: /bds-Sim/bdsTx/satellite_info/convert_ephemeris_to_json.py
 '''
 
 import json
+import calendar
+from time_system import utc2bds
 
 
 def get_data(x): return list(filter(None, x.split(' ')))[-1]
@@ -100,6 +102,7 @@ def render_ephemeris(ephemeris_file_path: str, ephemeris_output_path: str, iono_
             bdt_second = int(ephemeris[line][21:23])
             time_idx = f"{bdt_year}-{bdt_month:02d}-{bdt_day:02d}_{bdt_hour:02d}:{bdt_minute:02d}:{bdt_second:02d}"
             json_data[current_id][time_idx] = {}
+            _, toc = utc2bds(calendar.timegm((bdt_year, bdt_month, bdt_day, bdt_hour, bdt_minute, bdt_second, 0, 0, 0)))
             # 卫星钟偏系数a0, second
             a0 = float(ephemeris[line][23:42].strip())
             # 卫星钟漂系数a1, sec/sec
@@ -163,6 +166,7 @@ def render_ephemeris(ephemeris_file_path: str, ephemeris_output_path: str, iono_
             # SatType/Empty,卫星轨道类型或者留空
             sat_type = int(float(ephemeris[line+7][61:].strip()))
 
+            json_data[current_id][time_idx]["toc"] = toc
             json_data[current_id][time_idx]["a0"] = a0
             json_data[current_id][time_idx]["a1"] = a1
             json_data[current_id][time_idx]["a2"] = a2

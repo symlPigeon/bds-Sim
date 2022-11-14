@@ -9,8 +9,8 @@ FilePath: /bdsTx/frame/b1c/b1c_subframe1.py
 
 from typing import Tuple
 
-from coding import bch
-from satellite_info import time_system
+from bdsTx.coding import bch
+from bdsTx.satellite_info import time_system
 
 
 def make_subframe1(prn: int, curr_time: float) -> Tuple[bytes, bytes]:

@@ -11,7 +11,7 @@ from typing import Union
 import math
 
 
-def data2bincomplement(data: Union[int, float], bitsize: int, ratio: int = 1) -> str:
+def data2bincomplement(data: Union[int, float], bitsize: int, ratio: float = 1) -> str:
     """将十进制数转换成二进制形式的补码字符串
 
     Args:
