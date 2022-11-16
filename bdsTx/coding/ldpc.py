@@ -7,9 +7,10 @@ Description: 多进制LDPC编码
 FilePath: /sim_bds/python/coding/ldpc.py
 """
 
-import numpy as np
 import galois
-from ldpc_mat import ldpcMat_100_200, ldpcMat_44_88
+import numpy as np
+
+from bdsTx.coding.ldpc_mat import ldpcMat_44_88, ldpcMat_100_200
 
 
 def ldpc64(mat: np.ndarray, data: np.ndarray) -> np.ndarray:

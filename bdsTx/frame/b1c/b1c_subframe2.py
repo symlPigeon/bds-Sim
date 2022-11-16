@@ -7,11 +7,11 @@ Description: B1C子帧2构造
 FilePath: /bdsTx/frame/b1c/b1c_subframe2.py
 """
 
-from bdsTx.coding import pre_ldpc, ldpc, ldpc_mat
-from bdsTx.coding import crc24q
-from bdsTx.satellite_info import time_system
-from bdsTx.frame.util import data2bincomplement
 import numpy as np
+
+from bdsTx.coding import crc24q, ldpc, ldpc_mat, pre_ldpc
+from bdsTx.frame.util import data2bincomplement
+from bdsTx.satellite_info import time_system
 
 
 def make_ephemeris1(ephemeris: dict) -> str:
@@ -22,7 +22,7 @@ def make_ephemeris1(ephemeris: dict) -> str:
 
     Returns:
         str: 二进制字符串形式的星历I
-    """    
+    """
     ans = ""
     ans += data2bincomplement(ephemeris["Toe"], 11, 300)
     ans += data2bincomplement(ephemeris["sat_type"], 2, 1)
@@ -34,7 +34,7 @@ def make_ephemeris1(ephemeris: dict) -> str:
     ans += data2bincomplement(ephemeris["e"], 33, pow(2, -34))
     ans += data2bincomplement(ephemeris["omega"], 33, pow(2, -32))
     print(len(ans))
-    return ans 
+    return ans
 
 
 def make_ephemeris2(ephemeris:dict) -> str:
@@ -45,7 +45,7 @@ def make_ephemeris2(ephemeris:dict) -> str:
 
     Returns:
         str: 二进制字符串形式的星历II
-    """    
+    """
     ans = ""
     ans += data2bincomplement(ephemeris["Omega0"], 33, pow(2, -32))
     ans += data2bincomplement(ephemeris["i0"], 33, pow(2, -32))
@@ -112,7 +112,7 @@ def encoding_subframe2(subframe2: bytes, ldpc_mat_path: str, re_generate: bool =
     if re_generate:
         mat = ldpc_mat.ldpcMat_100_200(ldpc_mat_path).mat()
     else:
-        mat = json.load(open(ldpc_mat_path, "r"))
+        mat = json.load(open(ldpc_mat_path, "r", encoding="utf-8"))
     data = pre_ldpc.pre_ldpc_enc(subframe2, 600)
     return ldpc.ldpc64(mat, data)
 
@@ -120,7 +120,8 @@ def encoding_subframe2(subframe2: bytes, ldpc_mat_path: str, re_generate: bool =
 if __name__ == "__main__":
     import json
     import time
-    eph = json.load(open("../../../bdsTx/satellite_info/ephemeris/tarc3130.22b.json", "r"))
+    eph = json.load(open("../../../bdsTx/satellite_info/ephemeris/tarc3130.22b.json", "r", encoding="utf-8"))
     frame = make_subframe2(time.time(), eph["19"]["2022-11-09_00:00:00"])
     matpath = "../../../bdsTx/coding/ldpc_mat_gen/ldpc_matG_100_200.json"
     print(encoding_subframe2(frame, matpath))
+    
