@@ -23,6 +23,7 @@ def ldpc64(mat: np.ndarray, data: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: 编码
     """
+    # FIXME: 这一段代码速度非常慢！
     Poly = galois.Poly([1, 0, 0, 0, 0, 1, 1])
     GF = galois.GF(2**6, irreducible_poly=Poly)
     mat = GF(mat)

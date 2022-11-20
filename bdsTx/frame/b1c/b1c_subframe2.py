@@ -33,7 +33,6 @@ def make_ephemeris1(ephemeris: dict) -> str:
     ans += data2bincomplement(ephemeris["M0"], 33, pow(2, -32))
     ans += data2bincomplement(ephemeris["e"], 33, pow(2, -34))
     ans += data2bincomplement(ephemeris["omega"], 33, pow(2, -32))
-    print(len(ans))
     return ans
 
 
@@ -57,7 +56,6 @@ def make_ephemeris2(ephemeris:dict) -> str:
     ans += data2bincomplement(ephemeris["Crc"], 24, pow(2, -8))
     ans += data2bincomplement(ephemeris["Cus"], 21, pow(2, -30))
     ans += data2bincomplement(ephemeris["Cuc"], 21, pow(2, -30))
-    print(len(ans))
     return ans
 
 
@@ -75,7 +73,6 @@ def make_clockbias(ephemeris: dict) -> str:
     ans += data2bincomplement(ephemeris["a0"], 25, pow(2, -34))
     ans += data2bincomplement(ephemeris["a1"], 22, pow(2, -50))
     ans += data2bincomplement(ephemeris["a2"], 11, pow(2, -66))
-    print(len(ans))
     return ans
 
 
@@ -93,13 +90,12 @@ def make_subframe2(curr_time: float, ephemeris: dict) -> bytes:
     TGDB1Cp = data2bincomplement(ephemeris["tgd"], 12, pow(2, -34))
     Rev = data2bincomplement(0, 7)
     frame = WN + how + iode + iodc + eph1 + eph2 + clock_bias + TGDB2ap + ISCB1Cd + TGDB1Cp + Rev
-    print(len(frame))
     frame = bytes([int(frame[i:i+8], 2) for i in range(0, len(frame), 8)])
     frame += crc24q.crc24q_gen(frame)
     return frame
 
 
-def encoding_subframe2(subframe2: bytes, ldpc_mat_path: str, re_generate: bool = False) -> np.ndarray:
+def encoding_subframe2(subframe2: bytes, ldpc_mat: np.ndarray) -> np.ndarray:
     """对子帧2进行LDPC编码
 
     Args:
@@ -108,12 +104,8 @@ def encoding_subframe2(subframe2: bytes, ldpc_mat_path: str, re_generate: bool =
     Returns:
         bytes: LDPC编码后的子帧2
     """
-    if re_generate:
-        mat = ldpc_mat.ldpcMat_100_200(ldpc_mat_path).mat()
-    else:
-        mat = json.load(open(ldpc_mat_path, "r", encoding="utf-8"))
     data = pre_ldpc.pre_ldpc_enc(subframe2, 600)
-    return ldpc.ldpc64(mat, data)
+    return ldpc.ldpc64(ldpc_mat, data)
 
 
 if __name__ == "__main__":
@@ -122,5 +114,6 @@ if __name__ == "__main__":
     eph = json.load(open("../../../bdsTx/satellite_info/ephemeris/tarc3130.22b.json", "r", encoding="utf-8"))
     frame = make_subframe2(time.time(), eph["19"]["2022-11-09_00:00:00"])
     matpath = "../../../bdsTx/coding/ldpc_mat_gen/ldpc_matG_100_200.json"
-    print(encoding_subframe2(frame, matpath))
+    mat = json.load(open(matpath, "r", encoding="utf-8"))
+    print(encoding_subframe2(frame, np.array(mat)))
     

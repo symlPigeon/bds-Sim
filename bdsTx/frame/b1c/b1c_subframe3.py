@@ -13,7 +13,8 @@ import logging
 import numpy as np
 
 from bdsTx.coding.crc24q import crc24q_gen
-from bdsTx.coding.ldpc import ldpc64, ldpcMat_44_88
+from bdsTx.coding.ldpc import ldpc64
+from bdsTx.coding.ldpc_mat import ldpcMat_44_88
 from bdsTx.coding.pre_ldpc import pre_ldpc_enc
 from bdsTx.frame.util import data2bincomplement
 
@@ -92,3 +93,50 @@ def make_subframe3_type1(ephemeris: dict, bdgim_data: list) -> bytes:
     frame = frame_b + crc24q_gen(frame_b)
     return frame
     
+    
+def make_subframe3(ephemeris: dict, bdgim_data: list, page_id: int) -> bytes:
+    """创建子帧3
+
+    Args:
+        ephemeris (dict): 星历
+        bdgim_data (list): BDGIM修正数据
+        page_id (int): 子帧类型
+
+    Returns:
+        bytes: 子帧3
+    """
+    match page_id:
+        case 1:
+            return make_subframe3_type1(ephemeris, bdgim_data)
+        case 2:
+            logging.warning(f"Not implement yet!")
+        case 3:
+            logging.warning(f"Not implement yet!")
+        case 4:
+            logging.warning(f"Not implement yet!")
+        case _:
+            logging.error("Invalid Subframe!")
+    return b"\x00" * 88
+            
+
+def encoding_subframe3(subframe3: bytes, ldpc_mat: np.ndarray) -> np.ndarray:
+    """对子帧3进行LDPC编码
+
+    Args:
+        subframe3 (bytes): 子帧3数据
+
+    Returns:
+        bytes: LDPC编码后的子帧3
+    """
+    data = pre_ldpc_enc(subframe3, 44 * 6)
+    return ldpc64(ldpc_mat, data)
+
+
+if __name__ == "__main__":
+    import json
+    eph = json.load(open("../../../bdsTx/satellite_info/ephemeris/tarc3130.22b.json", "r", encoding="utf-8"))
+    bdgim = json.load(open("../../../bdsTx/satellite_info/ionosphere/iono_corr.json", "r", encoding="utf-8"))
+    bdgim = bdgim["bdgim"]["a"]["alpha"]
+    subframe = make_subframe3(eph["19"]["2022-11-09_00:00:00"], bdgim, 1)
+    mat = json.load(open("../../../bdsTx/coding/ldpc_mat_gen/ldpc_matG_44_88.json", "r", encoding="utf-8"))
+    print(encoding_subframe3(subframe, mat))
