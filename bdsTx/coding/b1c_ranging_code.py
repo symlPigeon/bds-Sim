@@ -1,16 +1,16 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 10:06:28
-LastEditTime: 2022-11-10 14:35:31
+LastEditTime: 2022-11-20 18:13:36
 LastEditors: symlpigeon
 Description: 生成b1c信号主码
-FilePath: /sim_bds/python/coding/b1c_ranging_code.py
+FilePath: /bds-Sim/bdsTx/coding/b1c_ranging_code.py
 '''
 
 import json
 from typing import Tuple
-from weil_code import get_weil_code, legendre_seq
 
+from weil_code import get_weil_code, legendre_seq
 
 MASTER_CODE_LENGTH = 10230
 MASTER_WEIL_CODE_LENGTH = 10243
