@@ -7,13 +7,13 @@ Description: 通过星历文件计算卫星位置
 FilePath: /sim_bds/python/satellite_info/position_calculate_by_ephemeris.py
 """
 
+import logging
 from typing import Tuple
-from colorama import Style, Fore
-import numpy as np
 
-from time_system import utc2bds
-from eccentric_anomaly import calculate_eccentric_anomaly
+import numpy as np
 from constants import *
+from eccentric_anomaly import calculate_eccentric_anomaly
+from time_system import utc2bds
 
 
 def get_stellite_position_by_ephemeris(
@@ -38,16 +38,14 @@ def get_stellite_position_by_ephemeris(
     # 计算参考时刻长半轴
     match ephemeris["sat_type"]:
         case 1:  # GEO
-            print(
-                f"[{Fore.YELLOW}WARNING{Style.RESET_ALL}] GEO Stellite Position Prediction is not implemented yet"
-            )
+            logging.warn("GEO Stellite Position Prediction is not implemented yet")
             return 0, 0, 0
         case 0b10:  # IGSO
             A_ref = IGSO_SEMI_MAJOR_AXIS
         case 0b11:  # MEO
             A_ref = MEO_SEMI_MAJOR_AXIS
         case _:
-            print(f"[{Fore.RED}ERROR{Style.RESET_ALL}] Unknown Satellite Type")
+            logging.error(f"Unknown Satellite Type: {ephemeris['sat_type']}")
             return 0, 0, 0
     A_0 = A_ref - ephemeris["deltaA/sqrtA"]
     # 计算长半轴

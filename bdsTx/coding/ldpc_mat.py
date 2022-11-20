@@ -8,9 +8,11 @@ FilePath: /sim_bds/python/coding/ldpc_mat.py
 """
 
 import json
-import numpy as np
-import galois
+import logging
 from typing import List, Tuple
+
+import galois
+import numpy as np
 
 
 def singleton(cls):
@@ -33,6 +35,8 @@ def gen_matG(matH: List[List[int]]) -> np.ndarray:
     Returns:
         _type_: _description_
     """
+    import time
+    start_time = time.time()
     Poly = galois.Poly([1, 0, 0, 0, 0, 1, 1])
     GF = galois.GF(2**6, irreducible_poly=Poly)
     H = np.array(matH)
@@ -42,6 +46,7 @@ def gen_matG(matH: List[List[int]]) -> np.ndarray:
     H2_1 = np.linalg.inv(H2)
     H_ = H2_1 @ H1
     I_k = GF(np.eye(k, dtype=np.uint8))
+    logging.info(f"LDPC Mat generation time: {time.time() - start_time}")
     return np.concatenate((I_k, H_.T), axis=1)
 
 

@@ -88,7 +88,6 @@ def make_subframe2(curr_time: float, ephemeris: dict) -> bytes:
     eph1 = make_ephemeris1(ephemeris)
     eph2 = make_ephemeris2(ephemeris)
     clock_bias = make_clockbias(ephemeris)
-    # TODO: Add TGDB2ap information here!
     TGDB2ap = data2bincomplement(ephemeris["tgd"], 12, pow(2, -34))
     ISCB1Cd = data2bincomplement(ephemeris["isc"], 12, pow(2, -34))
     TGDB1Cp = data2bincomplement(ephemeris["tgd"], 12, pow(2, -34))
