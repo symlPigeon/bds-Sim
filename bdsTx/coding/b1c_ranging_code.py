@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 10:06:28
-LastEditTime: 2022-11-20 18:13:36
+LastEditTime: 2022-11-21 16:45:20
 LastEditors: symlpigeon
 Description: 生成b1c信号主码
 FilePath: /bds-Sim/bdsTx/coding/b1c_ranging_code.py
@@ -32,11 +32,23 @@ def get_prn_data_from_json_file(filename: str = "prn_data/b1c_prn_data.json") ->
     return data
 
 
-class b1c_prn_loader:
-    __prn_data = get_prn_data_from_json_file()
+def singleton(cls):
+    """单例模式"""
+    _instance = {}
 
-    @classmethod
-    def get_prn_data(cls, prn: int, code_type: str) -> dict:
+    def _singleton(*args, **kwargs):
+        if cls not in _instance:
+            _instance[cls] = cls(*args, **kwargs)
+        return _instance[cls]
+    return _singleton
+
+@singleton
+class b1c_prn_loader:
+    
+    def __init__(self, filepath: str = "prn_data/b1c_prn_data.json"):
+        self.__prn_data = get_prn_data_from_json_file()
+
+    def get_prn_data(self, prn: int, code_type: str) -> dict:
         """获取PRN信息
 
         Args:
@@ -50,12 +62,12 @@ class b1c_prn_loader:
             dict: PRN号对应的信息
         """
         try:
-            return cls.__prn_data[code_type][prn - 1]
+            return self.__prn_data[code_type][prn - 1]
         except:
             raise ValueError("Invalid PRN number!")
 
 
-def get_b1c_code(prn: int, code_type: str) -> str:
+def get_b1c_code(prn: int, code_type: str, filepath: str="prn_data/b1c_prn_data.json") -> str:
     """获取B1C码字
 
     Args:
@@ -65,8 +77,8 @@ def get_b1c_code(prn: int, code_type: str) -> str:
     Returns:
         bytes: 码字
     """
-    w, p = b1c_prn_loader.get_prn_data(
-        prn, code_type)["w"], b1c_prn_loader.get_prn_data(prn, code_type)["p"]
+    w, p = b1c_prn_loader(filepath).get_prn_data(
+        prn, code_type)["w"], b1c_prn_loader(filepath).get_prn_data(prn, code_type)["p"]
     if code_type == "data" or code_type == "pilot":
         seq_length = MASTER_WEIL_CODE_LENGTH
         code_length = MASTER_CODE_LENGTH
@@ -86,6 +98,21 @@ def get_b1c_code(prn: int, code_type: str) -> str:
     return oct_code
 
 
+def export_ranging_code(filepath: str= "prn_data/b1c_prn_data.json", outpath:str="ranging_code/") -> None:
+    """导出测距码信息
+
+    Args:
+        filepath (str, optional): 输入文件路径. Defaults to "prn_data/b1c_prn_data.json".
+        outpath (str, optional): 输出路径，对应一个文件夹. Defaults to "ranging_code/".
+    """
+    for prn in range(1, 64):
+        json_data = {}
+        for code_type in ["data", "pilot", "sub_pilot"]:
+            code = get_b1c_code(prn, code_type, filepath)
+            json_data[code_type] = code
+        with open(outpath + "/prn-" + str(prn) + ".json", "w") as f:
+            json.dump(json_data, f, indent=4)
+
 if __name__ == "__main__":
     """
     测试正确性
@@ -97,9 +124,9 @@ if __name__ == "__main__":
             code = get_b1c_code(prn, code_type)
             first_24 = code[:8]
             last_24 = code[-8:]
-            target_first_24 = b1c_prn_loader.get_prn_data(prn, code_type)[
+            target_first_24 = b1c_prn_loader().get_prn_data(prn, code_type)[
                 "first_24bit"]
-            target_last_24 = b1c_prn_loader.get_prn_data(prn, code_type)[
+            target_last_24 = b1c_prn_loader().get_prn_data(prn, code_type)[
                 "last_24bit"]
             if first_24 != target_first_24:
                 print(
@@ -117,3 +144,4 @@ if __name__ == "__main__":
         print(f"[{Fore.GREEN}SUCCESS{Style.RESET_ALL}] All tests passed!")
     else:
         print(f"[{Fore.RED}ERROR{Style.RESET_ALL}] Some tests failed!")
+    export_ranging_code()
