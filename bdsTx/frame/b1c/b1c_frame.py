@@ -8,7 +8,6 @@ FilePath: /sim_bds/python/satellite_info/b1c_frame.py
 """
 
 import json
-import time
 from typing import List
 
 import numpy as np
@@ -43,23 +42,17 @@ class b1cFrame:
         prn: int,
         eph: dict,
         bdgim: list,
-        refer_time: float,
         frame_order: List[int],
-        ldpc_mat_paths: List[str],
+        ldpc_mat_1: np.ndarray,
+        ldpc_mat_2: np.ndarray
     ):
         self._prn = prn
         self._eph = eph
         self._bdgim = bdgim
-        self._refer_time = refer_time
         self._frame_order = frame_order
         self._subframe3idx = 0
-        self._ldpc_mat_1 = np.ndarray(
-            json.load(open(ldpc_mat_paths[0], "r", encoding="utf-8"))
-        )
-        self._ldpc_mat_2 = np.ndarray(
-            json.load(open(ldpc_mat_paths[1], "r", encoding="utf-8"))
-        )
-        self._start_time = time.time()
+        self._ldpc_mat_1 = ldpc_mat_1
+        self._ldpc_mat_2 = ldpc_mat_2
 
     def get_prn(self):
         """get Prn"""
@@ -73,22 +66,14 @@ class b1cFrame:
         """get BDGIM"""
         return self._bdgim
 
-    def get_refer_time(self):
-        """get Refer Time"""
-        return self._refer_time
-
     def get_frame_order(self):
         """get frame order for subframe3"""
         return self._frame_order
-    
-    def get_time(self):
-        """get current time"""
-        return self._refer_time + time.time() - self._start_time
 
-    def make_frame(self):
+    def make_frame(self, curr_time: float):
         """生成B1C帧"""
-        subframe1 = make_subframe1(self._prn, self.get_time())
-        subframe2 = make_subframe2(self._refer_time, self._eph)
+        subframe1 = make_subframe1(self._prn, curr_time)
+        subframe2 = make_subframe2(curr_time, self._eph)
         subframe3 = make_subframe3(
             self._eph, self._bdgim, self._frame_order[self._subframe3idx]
         )
