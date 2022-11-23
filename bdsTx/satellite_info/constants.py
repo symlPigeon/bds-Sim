@@ -1,14 +1,13 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 15:49:30
-LastEditTime: 2022-11-09 17:08:15
+LastEditTime: 2022-11-23 14:55:17
 LastEditors: symlpigeon
 Description: 常数定义
-FilePath: /sim_bds/python/satellite_info/constants.py
+FilePath: /bds-Sim/bdsTx/satellite_info/constants.py
 '''
 
 import numpy as np
-
 
 # 地心引力常数
 GEOCENTRIC_GRAVITATIONAL_CONSTANT = 3.986004418e14
@@ -32,3 +31,7 @@ IONOSPHERE_SINGLE_LAYER_ALTITUDE = 400000
 GEO_MAGNETIC_NORTH_POLE_LONGITUDE = -72.58 / 180 * np.pi
 # 地磁北极纬度
 GEO_MAGNETIC_NORTH_POLE_LATITUDE = 80.27 / 180 * np.pi
+# 光速
+LIGHT_SPEED = 299792458
+# 相对论常量 F=-2\sqrt{\mu}/C^2
+RELATIVITY_CONSTANT = -4.442807633e-10
