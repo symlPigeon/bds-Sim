@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-11-09 14:12:40
-LastEditTime: 2022-11-23 16:06:43
+LastEditTime: 2022-11-24 09:44:40
 LastEditors: symlpigeon
 Description: 伪距计算
 FilePath: /bds-Sim/bdsTx/satellite_info/pseudorange.py
@@ -96,7 +96,7 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
     return RELATIVITY_CONSTANT * e * sqrtA * np.sin(E_k)
 
 
-def get_pesudo_range(ephemeris: dict, iono_non_broadcast: dict, iono_corr: list, carrier_freq: float, rx_pos: Tuple[float, float, float], curr_time: float) -> Tuple[float, float]:
+def get_pseudo_range(ephemeris: dict, iono_non_broadcast: dict, iono_corr: list, carrier_freq: float, rx_pos: Tuple[float, float, float], curr_time: float) -> Tuple[float, float]:
     """计算伪距
 
     Args:
