@@ -63,9 +63,7 @@ class b1cSatelliteHandler(satelliteHandler):
         )
 
     def _produce(self):
-        self._next_handler.add(
-            self._frame_creater.make_frame(self._manager.get_curr_time())
-        )
+        frame = self._frame_creater.make_frame(self._manager.get_curr_time())
         
     def trigger(self):
         logging.info(f"{self} - b1cSatelliteHandler trigger")
