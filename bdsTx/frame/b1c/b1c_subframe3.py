@@ -129,7 +129,7 @@ def encoding_subframe3(subframe3: bytes, ldpc_mat: np.ndarray) -> np.ndarray:
         bytes: LDPC编码后的子帧3
     """
     data = pre_ldpc_enc(subframe3, 44 * 6)
-    return ldpc64(ldpc_mat, data)
+    return np.concatenate((data, ldpc64(ldpc_mat, data)), dtype=np.uint8)
 
 
 if __name__ == "__main__":

@@ -70,7 +70,7 @@ class b1cFrame:
         """get frame order for subframe3"""
         return self._frame_order
 
-    def make_frame(self, curr_time: float):
+    def make_frame(self, curr_time: float) -> bytes:
         """生成B1C帧"""
         subframe1 = make_subframe1(self._prn, curr_time)
         subframe2 = make_subframe2(curr_time, self._eph)
@@ -82,3 +82,22 @@ class b1cFrame:
         subframe2 = encoding_subframe2(subframe2, self._ldpc_mat_1)
         subframe3 = encoding_subframe3(subframe3, self._ldpc_mat_2)
         return _mix_subframe(subframe1, subframe2, subframe3)
+
+
+if __name__ == "__main__":
+    import json
+    import time
+
+    from bdsTx.coding.ldpc_mat import ldpcMat_44_88, ldpcMat_100_200
+    eph = json.load(open("../../satellite_info/ephemeris/tarc3130.22b.json", "r"))["22"]["2022-11-09_12:00:00"]
+    bdgim = json.load(open("../../../bdsTx/satellite_info/ionosphere/iono_corr.json", "r", encoding="utf-8"))
+    bdgim = bdgim["bdgim"]["a"]["alpha"]
+    mat1 = json.load(open("../../coding/ldpc_mat_gen/ldpc_matG_100_200.json", "r"))
+    mat2 = json.load(open("../../coding/ldpc_mat_gen/ldpc_matG_44_88.json", "r"))
+    frame_maker = b1cFrame(22, eph, bdgim, [1], mat1, mat2)
+    frame = frame_maker.make_frame(time.time())
+    hex_frame = ""
+    for i in frame:
+        hex_frame += f"{i:02x}"
+    print(hex_frame)
+    print(len(hex_frame))

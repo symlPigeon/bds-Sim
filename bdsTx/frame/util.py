@@ -7,8 +7,10 @@ Description: 一些进制转换的函数
 FilePath: /bdsTx/frame/util.py
 """
 
-from typing import Union
+import datetime
 import math
+import time
+from typing import Union
 
 
 def data2bincomplement(data: Union[int, float], bitsize: int, ratio: float = 1) -> str:

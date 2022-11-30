@@ -9,7 +9,7 @@ FilePath: /bdsTx/frame/b1c/b1c_subframe2.py
 
 import numpy as np
 
-from bdsTx.coding import crc24q, ldpc, ldpc_mat, pre_ldpc
+from bdsTx.coding import crc24q, ldpc, pre_ldpc
 from bdsTx.frame.util import data2bincomplement
 from bdsTx.satellite_info import time_system
 
@@ -105,7 +105,7 @@ def encoding_subframe2(subframe2: bytes, ldpc_mat: np.ndarray) -> np.ndarray:
         bytes: LDPC编码后的子帧2
     """
     data = pre_ldpc.pre_ldpc_enc(subframe2, 600)
-    return ldpc.ldpc64(ldpc_mat, data)
+    return np.concatenate((data, ldpc.ldpc64(ldpc_mat, data)), dtype=np.uint8)
 
 
 if __name__ == "__main__":
