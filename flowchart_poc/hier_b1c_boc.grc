@@ -42,7 +42,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [728, 16.0]
+    coordinate: [480, 16.0]
     rotation: 0
     state: enabled
 - name: analog_const_source_x_0
@@ -146,7 +146,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '-1'
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -164,7 +164,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '-1'
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -182,7 +182,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '-1'
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -226,7 +226,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 364.0]
+    coordinate: [496, 396.0]
     rotation: 0
     state: true
 - name: blocks_char_to_float_1
@@ -304,7 +304,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '2'
+    const: '-2'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -313,7 +313,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [688, 364.0]
+    coordinate: [680, 396.0]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_0_0
@@ -322,7 +322,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '2'
+    const: '-2'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -340,7 +340,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '2'
+    const: '-2'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -406,79 +406,6 @@ blocks:
     coordinate: [1288, 540.0]
     rotation: 0
     state: true
-- name: blocks_repeat_0
-  id: blocks_repeat
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'data sps is 100
-
-      here should be an interpolation'
-    interp: int(samp_rate / data_sps)
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [288, 364.0]
-    rotation: 0
-    state: enabled
-- name: blocks_repeat_1
-  id: blocks_repeat
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: pilot sps is 1.023M
-    interp: int(samp_rate / pilot_sps)
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [304, 660.0]
-    rotation: 0
-    state: enabled
-- name: blocks_repeat_1_0
-  id: blocks_repeat
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: pilot sps is 1.023M
-    interp: int(samp_rate / pilot_sps)
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [304, 508.0]
-    rotation: 0
-    state: enabled
-- name: data_sps
-  id: parameter
-  parameters:
-    alias: ''
-    comment: ''
-    hide: none
-    label: data_sps
-    short_id: ''
-    type: eng_float
-    value: '100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [488, 12.0]
-    rotation: 0
-    state: true
 - name: delay
   id: parameter
   parameters:
@@ -540,7 +467,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [840, 20.0]
+    coordinate: [592, 20.0]
     rotation: 0
     state: true
 - name: pad_sink_0
@@ -578,7 +505,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [56, 364.0]
+    coordinate: [248, 396.0]
     rotation: 0
     state: true
 - name: pad_source_0_0
@@ -598,7 +525,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [56, 508.0]
+    coordinate: [248, 508.0]
     rotation: 0
     state: true
 - name: pad_source_0_0_0
@@ -618,24 +545,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [56, 660.0]
-    rotation: 0
-    state: true
-- name: pilot_sps
-  id: parameter
-  parameters:
-    alias: ''
-    comment: ''
-    hide: none
-    label: pilot_sps
-    short_id: ''
-    type: eng_float
-    value: 1.023e6
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [608, 12.0]
+    coordinate: [248, 660.0]
     rotation: 0
     state: true
 
@@ -662,12 +572,9 @@ connections:
 - [blocks_multiply_xx_0, '0', blocks_add_xx_0, '0']
 - [blocks_multiply_xx_1, '0', blocks_add_xx_0, '1']
 - [blocks_multiply_xx_1_0, '0', blocks_float_to_complex_0, '1']
-- [blocks_repeat_0, '0', blocks_char_to_float_0, '0']
-- [blocks_repeat_1, '0', blocks_char_to_float_1, '0']
-- [blocks_repeat_1_0, '0', blocks_char_to_float_1_0, '0']
-- [pad_source_0, '0', blocks_repeat_0, '0']
-- [pad_source_0_0, '0', blocks_repeat_1_0, '0']
-- [pad_source_0_0_0, '0', blocks_repeat_1, '0']
+- [pad_source_0, '0', blocks_char_to_float_0, '0']
+- [pad_source_0_0, '0', blocks_char_to_float_1_0, '0']
+- [pad_source_0_0_0, '0', blocks_char_to_float_1, '0']
 
 metadata:
   file_format: 1

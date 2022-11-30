@@ -1,0 +1,127 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[BDS]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: hb
+    hier_block_src_path: '.:'
+    id: hier_B1C_hexdata2vec
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: B1C_HexData2Vec
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: hex2vec_ans
+  id: variable
+  parameters:
+    comment: ''
+    value: hex2vec.hex2vec(hex_data)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [448, 16.0]
+    rotation: 0
+    state: true
+- name: blocks_vector_source_x_0
+  id: blocks_vector_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    repeat: 'True'
+    tags: '[]'
+    type: byte
+    vector: hex2vec_ans[1]
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 376.0]
+    rotation: 0
+    state: true
+- name: hex2vec
+  id: epy_module
+  parameters:
+    alias: ''
+    comment: ''
+    source_code: "# this module will be imported in the into your flowgraph\nfrom\
+      \ typing import List, Tuple\n\nimport numpy as np\n\n\ndef hex2vec(data: str)\
+      \ -> Tuple[int, List[int]]:\n    length = len(data) * 4\n    vec = []\n    for\
+      \ d in data:\n        i = int(d, 16)\n        vec.append((i >> 3) & 0x1)\n \
+      \       vec.append((i >> 2) & 0x1)\n        vec.append((i >> 1) & 0x1)\n   \
+      \     vec.append(i & 0x1)\n    return length, vec\n        \n"
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [320, 20.0]
+    rotation: 0
+    state: true
+- name: hex_data
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: data
+    short_id: ''
+    type: str
+    value: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 20.0]
+    rotation: 0
+    state: true
+- name: pad_sink_0
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: out
+    num_streams: '1'
+    optional: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [832, 340.0]
+    rotation: 0
+    state: true
+
+connections:
+- [blocks_vector_source_x_0, '0', pad_sink_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.4.0

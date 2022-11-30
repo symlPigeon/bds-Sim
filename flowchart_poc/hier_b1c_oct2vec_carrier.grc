@@ -1,0 +1,226 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[BDS]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: hb
+    hier_block_src_path: '.:'
+    id: hier_B1CCarrierPilot2Vector
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: B1C_CarrierPilot2Vector
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: oct2vec_ans1
+  id: variable
+  parameters:
+    comment: ''
+    value: oct2vec.oct2vec(oct_pilot)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 16.0]
+    rotation: 0
+    state: true
+- name: oct2vec_ans2
+  id: variable
+  parameters:
+    comment: ''
+    value: oct2vec.oct2vec(oct_subpilot)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [704, 16.0]
+    rotation: 0
+    state: true
+- name: blocks_repeat_0
+  id: blocks_repeat
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Two sources'' symbol rate should be equal.
+
+      After repeat of 1.023e4,
+
+      the symbol rate becomes 1.023Mcps'
+    interp: int(1.023e4)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [544, 516.0]
+    rotation: 0
+    state: true
+- name: blocks_vector_source_x_0
+  id: blocks_vector_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'B1C Pilot
+
+      Master Code
+
+      10230 symbols, 10 ms, 1.023Mcps'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    repeat: 'True'
+    tags: '[]'
+    type: byte
+    vector: oct2vec_ans1[1]
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [248, 256.0]
+    rotation: 0
+    state: true
+- name: blocks_vector_source_x_1
+  id: blocks_vector_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'B1C Pilot
+
+      Sub Code
+
+      1800 symbols, 18000ms, 100cps'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    repeat: 'True'
+    tags: '[]'
+    type: byte
+    vector: oct2vec_ans2[1]
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [248, 536.0]
+    rotation: 0
+    state: true
+- name: blocks_xor_xx_0
+  id: blocks_xor_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [920, 348.0]
+    rotation: 0
+    state: true
+- name: oct2vec
+  id: epy_module
+  parameters:
+    alias: ''
+    comment: ''
+    source_code: "# this module will be imported in the into your flowgraph\nfrom\
+      \ typing import List, Tuple\n\nimport numpy as np\n\n\ndef oct2vec(oct: str)\
+      \ -> Tuple[int, List[int]]:\n    length = len(oct) * 3\n    data = []\n    for\
+      \ i in range(len(oct)):\n        data.append(int(oct[i]) >> 2 & 1)\n       \
+      \ data.append(int(oct[i]) >> 1 & 1)\n        data.append(int(oct[i]) & 1)\n\
+      \    return length, data\n"
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 20.0]
+    rotation: 0
+    state: true
+- name: oct_pilot
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: pilot
+    short_id: ''
+    type: str
+    value: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 20.0]
+    rotation: 0
+    state: true
+- name: oct_subpilot
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: subpilot
+    short_id: ''
+    type: str
+    value: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 20.0]
+    rotation: 0
+    state: true
+- name: pad_sink_0
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: out
+    num_streams: '1'
+    optional: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1200, 308.0]
+    rotation: 0
+    state: true
+
+connections:
+- [blocks_repeat_0, '0', blocks_xor_xx_0, '1']
+- [blocks_vector_source_x_0, '0', blocks_xor_xx_0, '0']
+- [blocks_vector_source_x_1, '0', blocks_repeat_0, '0']
+- [blocks_xor_xx_0, '0', pad_sink_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.4.0
