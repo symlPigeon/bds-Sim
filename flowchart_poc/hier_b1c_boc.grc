@@ -488,6 +488,60 @@ blocks:
     coordinate: [1984, 380.0]
     rotation: 0
     state: true
+- name: pad_sink_1
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: s_b1c_data
+    num_streams: '1'
+    optional: 'True'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1520, 92.0]
+    rotation: 0
+    state: true
+- name: pad_sink_1_0
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: s_b1c_pilot_b
+    num_streams: '1'
+    optional: 'True'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1528, 532.0]
+    rotation: 0
+    state: true
+- name: pad_sink_1_1
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: s_b1c_pilot_a
+    num_streams: '1'
+    optional: 'True'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1528, 628.0]
+    rotation: 0
+    state: true
 - name: pad_source_0
   id: pad_source
   parameters:
@@ -570,8 +624,11 @@ connections:
 - [blocks_multiply_const_vxx_0_0, '0', blocks_add_const_vxx_0_0, '0']
 - [blocks_multiply_const_vxx_0_1, '0', blocks_add_const_vxx_0_1, '0']
 - [blocks_multiply_xx_0, '0', blocks_add_xx_0, '0']
+- [blocks_multiply_xx_0, '0', pad_sink_1, '0']
 - [blocks_multiply_xx_1, '0', blocks_add_xx_0, '1']
+- [blocks_multiply_xx_1, '0', pad_sink_1_0, '0']
 - [blocks_multiply_xx_1_0, '0', blocks_float_to_complex_0, '1']
+- [blocks_multiply_xx_1_0, '0', pad_sink_1_1, '0']
 - [pad_source_0, '0', blocks_char_to_float_0, '0']
 - [pad_source_0_0, '0', blocks_char_to_float_1_0, '0']
 - [pad_source_0_0_0, '0', blocks_char_to_float_1, '0']
