@@ -130,6 +130,21 @@ def bch_51_8_enc(data: bytes) -> bytes:
     return bch_enc(data, g, 51, 8)
 
 
+def bch_15_11_enc(data:bytes) -> bytes:
+    """BCH(15,11,1)编码
+    BCH(15,11,1) n=15, k=11, t=1
+    生成多项式 g(x) = x^4 + x + 1
+
+    Args:
+        data (bytes): 待编码数据
+
+    Returns:
+        bytes: 编码数据
+    """
+    g = 0b10011
+    return bch_enc(data, g, 15, 11)
+
+
 if __name__ == "__main__":
     with open("bch_test/bch_enc.csv", "r") as f:
         data = f.read()
