@@ -1,10 +1,10 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 10:52:12
-LastEditTime: 2022-11-08 15:23:08
+LastEditTime: 2023-01-08 14:43:58
 LastEditors: symlpigeon
 Description: PRN主码参数的预处理脚本
-FilePath: /sim_bds/python/coding/prn_data/process_copied_data.py
+FilePath: /bds-Sim/bdsTx/coding/prn_data/process_copied_data_b1c.py
 '''
 
 

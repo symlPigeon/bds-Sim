@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 10:06:28
-LastEditTime: 2022-11-21 16:45:20
+LastEditTime: 2023-01-08 14:46:21
 LastEditors: symlpigeon
 Description: 生成b1c信号主码
 FilePath: /bds-Sim/bdsTx/coding/b1c_ranging_code.py
@@ -98,12 +98,12 @@ def get_b1c_code(prn: int, code_type: str, filepath: str="prn_data/b1c_prn_data.
     return oct_code
 
 
-def export_ranging_code(filepath: str= "prn_data/b1c_prn_data.json", outpath:str="ranging_code/") -> None:
+def export_ranging_code(filepath: str= "prn_data/b1c_prn_data.json", outpath:str="ranging_code/b1c/") -> None:
     """导出测距码信息
 
     Args:
         filepath (str, optional): 输入文件路径. Defaults to "prn_data/b1c_prn_data.json".
-        outpath (str, optional): 输出路径，对应一个文件夹. Defaults to "ranging_code/".
+        outpath (str, optional): 输出路径，对应一个文件夹. Defaults to "ranging_code/b1c/".
     """
     for prn in range(1, 64):
         json_data = {}
