@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-12-27 17:30:27
-LastEditTime: 2023-01-08 20:45:57
+LastEditTime: 2023-01-09 21:26:30
 LastEditors: symlpigeon
 Description: Linear Feedback Shift Register
 FilePath: /bds-Sim/bdsTx/coding/lfsr.py
@@ -22,6 +22,7 @@ def uint32_swar(x: np.uint32) -> np.uint32:
     x = np.uint32((x & 0x55555555) + ((x >> 1) & 0x55555555))
     x = np.uint32((x & 0x33333333) + ((x >> 2) & 0x33333333))
     x = np.uint32((x & 0x0F0F0F0F) + ((x >> 4) & 0x0F0F0F0F))
+    x = (x * 0x01010101) >> 24; 
     return x
 
 
@@ -46,11 +47,12 @@ class LFSR:
         return out_bit
     
     def get_status(self) -> int:
-        return self._reg
+        return self._reg & ((1 << self._l) - 1)
         
         
 if __name__ == "__main__":
     lfsr = LFSR(10, 0b1011100001, 0b1010101010)
     for i in range(30):
-        print(lfsr.get(), end='')
+        #print(lfsr.get(), end='')
+        lfsr.get()
     

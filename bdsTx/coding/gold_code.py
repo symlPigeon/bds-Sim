@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2023-01-08 14:42:57
-LastEditTime: 2023-01-08 20:46:44
+LastEditTime: 2023-01-09 21:24:04
 LastEditors: symlpigeon
 Description: Generate Gold Code
 FilePath: /bds-Sim/bdsTx/coding/gold_code.py
@@ -37,7 +37,7 @@ def generate_gold_code(phases: List[int]) -> str:
     phase_selector &= 0x7ff
     code = ""
     for _ in range(GOLD_CODE_LENGTH):
-        code += str(G1.get() ^ (uint32_swar(np.uint32((G2.get_status() & phase_selector) & 0x7ff)) & 0x1))
+        code += str(G1.get() ^ (uint32_swar(np.uint32((G2.get_status() & phase_selector))) & 0x1))
         # shift G2
         _ = G2.get()
     return code

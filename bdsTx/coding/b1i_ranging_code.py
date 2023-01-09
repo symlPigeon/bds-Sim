@@ -1,11 +1,14 @@
 '''
 Author: symlpigeon
 Date: 2023-01-08 16:05:00
-LastEditTime: 2023-01-08 20:47:53
+LastEditTime: 2023-01-09 21:34:49
 LastEditors: symlpigeon
 Description: 生成B1I信号测距码
 FilePath: /bds-Sim/bdsTx/coding/b1i_ranging_code.py
 '''
+
+# ! FIXME : B1I PRN-40 is different from the data in b1icode.csv
+# !         So, which one is correct?
 
 import json
 
@@ -48,6 +51,7 @@ if __name__ == "__main__":
         with open("ranging_code/b1i/prn-" + str(prn) + ".json", "r") as f:
             t_code = json.load(f)["prn"]
         if v_code != t_code:
-            # print(v_code)
-            # print(t_code)
+            print(v_code)
+            print(t_code)
             print(f"prn-{prn} is wrong!")
+            # exit(1)
