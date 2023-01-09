@@ -1,14 +1,14 @@
 '''
 Author: symlpigeon
 Date: 2023-01-08 16:05:00
-LastEditTime: 2023-01-09 21:34:49
+LastEditTime: 2023-01-09 22:02:43
 LastEditors: symlpigeon
 Description: 生成B1I信号测距码
 FilePath: /bds-Sim/bdsTx/coding/b1i_ranging_code.py
 '''
 
-# ! FIXME : B1I PRN-40 is different from the data in b1icode.csv
-# !         So, which one is correct?
+#  FIXME : B1I PRN-40 is different from the data in b1icode.csv
+#          So, which one is correct?
 
 import json
 
