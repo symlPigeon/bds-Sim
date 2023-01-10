@@ -111,9 +111,9 @@ def b1i_bch_encode_word_1(data: bytes) -> bytes:
         ((data[1] & 0b11111110) >> 1) & 0b01111111
     )
     data_2 = (
-        (((data[1] & 0b00000001) << 10) & 0b10000000000)
-        + (((data[2] & 0b11111111) << 2) & 0b1111111100)
-        + (((data[3] & 0b11000000) >> 6) & 0b11)
+        ((data[1] & 0b00000001) << 10)
+        + ((data[2] & 0b11111111) << 2)
+        + ((data[3] & 0b11000000) >> 6)
     )
     enc_data = bch_15_11_enc(data_2.to_bytes(2, "big"))
     return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
