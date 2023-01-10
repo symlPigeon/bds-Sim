@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2023-01-08 14:42:57
-LastEditTime: 2023-01-09 21:24:04
+LastEditTime: 2023-01-10 20:18:26
 LastEditors: symlpigeon
 Description: Generate Gold Code
 FilePath: /bds-Sim/bdsTx/coding/gold_code.py
@@ -20,8 +20,8 @@ import numpy as np
 
 from bdsTx.coding.lfsr import LFSR, uint32_swar
 
-GOLD_CODE_G1_COEF = 0b10000011111
-GOLD_CODE_G2_COEF = 0b11111001101
+GOLD_CODE_G1_COEF = 0b11111000001
+GOLD_CODE_G2_COEF = 0b10110011111
 GOLD_CODE_INIT_PHASE = 0b01010101010
 GOLD_CODE_LENGTH = 2046
 
@@ -33,7 +33,7 @@ def generate_gold_code(phases: List[int]) -> str:
     # the phase selector of G2
     phase_selector = 0
     for phase in phases:
-        phase_selector += 1 << (11 - phase)
+        phase_selector += 1 << (phase - 1)
     phase_selector &= 0x7ff
     code = ""
     for _ in range(GOLD_CODE_LENGTH):
