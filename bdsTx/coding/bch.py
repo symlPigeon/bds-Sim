@@ -9,62 +9,8 @@ FilePath: /sim_bds/python/coding/bch.py
 
 # 这个讲的还挺清楚 http://staff.ustc.edu.cn/~wyzhou/ct_chapter3.pdf
 
-from typing import Tuple
 
-import numpy as np
-
-
-def uint8_swar(x: np.uint8) -> np.uint8:
-    """统计一个uint8的1的个数
-    Variable-Precision SWAR Algorithm, 好厉害
-
-    Args:
-        x (np.uint8): 待统计的数
-
-    Returns:
-        int: 1的个数
-    """
-    x = np.uint8((x & 0x55) + ((x >> 1) & 0x55))
-    x = np.uint8((x & 0x33) + ((x >> 2) & 0x33))
-    x = np.uint8((x & 0x0F) + ((x >> 4) & 0x0F))
-    return x
-
-
-def reg_shl(reg: np.ndarray, k: int) -> Tuple[np.ndarray, int]:
-    """寄存器左移位
-
-    Args:
-        reg (np.ndarray): 寄存器数组, dtype=np.uint8
-        k (int): 长度 bit
-
-    Returns:
-        np.ndarray: 位移之后的寄存器
-    """
-    byte_length = k // 8 + (0 if k % 8 == 0 else 1)
-    out_bit = (reg[0] >> 7) & 0x1
-    for idx in range(byte_length - 1):
-        reg[idx] <<= 1
-        reg[idx] |= (reg[idx + 1] >> 7) & 0x1
-    reg[byte_length - 1] <<= 1
-    return reg, int(out_bit)
-
-
-def reg_feedback(reg: np.ndarray, g: np.ndarray, k: int) -> int:
-    """寄存器反馈
-
-    Args:
-        reg (np.ndarray): 寄存器, dtype=np.uint8
-        g (np.ndarray): 本原多项式, dtype=np.uint8
-        k (int): 寄存器宽度 bit
-
-    Returns:
-        int: 反馈值
-    """
-    feedback_cnt = 0
-    byte_length = k // 8 + (0 if k % 8 == 0 else 1)
-    for idx in range(byte_length):
-        feedback_cnt += uint8_swar(reg[idx] & g[idx])
-    return feedback_cnt & 0x1
+from bdsTx.coding.lfsr import LFSR
 
 
 def bch_enc(data: bytes, g: int, n: int, k: int) -> bytes:
@@ -79,25 +25,12 @@ def bch_enc(data: bytes, g: int, n: int, k: int) -> bytes:
     Returns:
         bytes: 编码结果
     """
-    # Reg stores the state of the shift register, MSB
-    reg = np.array(list(data), dtype=np.uint8)
-    if k % 8 != 0:
-        reg[k // 8] <<= 8 - k % 8
-    # reverse the order of bits in each byte
-    bin_g = bin(g)[2:][::-1]
-    if len(bin_g) % 8 != 0:
-        bin_g += "0" * (8 - len(bin_g) % 8)
-    poly = np.array(
-        [int(bin_g[i : i + 8], 2) for i in range(0, len(bin_g), 8)], dtype=np.uint8
-    )
-
-    ans = 0
-    for _ in range(n):
-        feedback = reg_feedback(reg, poly, k)
-        reg, out_bit = reg_shl(reg, k)
-        reg[k // 8 + (0 if k % 8 == 0 else 1) - 1] |= feedback << ((8 - k % 8) % 8)
-        ans = (ans << 1) | out_bit
-    return ans.to_bytes(n // 8 + 1, "big")
+    init_phase = int.from_bytes(data, "big")
+    lfsr = LFSR(k, g, init_phase)
+    outbits = lfsr.run(n)
+    if len(outbits) % 8 != 0:
+        outbits = "0" * (8 - len(outbits) % 8) + outbits
+    return bytearray(int(outbits[i : i + 8], 2) for i in range(0, len(outbits), 8))
 
 
 def bch_21_6_enc(data: bytes) -> bytes:
@@ -111,7 +44,9 @@ def bch_21_6_enc(data: bytes) -> bytes:
     Returns:
         bytes: 编码数据
     """
-    g = 0b1010111
+    # FIXME: why? wtf? how?
+    # g = 0b1010111
+    g = 0b111010
     return bch_enc(data, g, 21, 6)
 
 
@@ -126,23 +61,9 @@ def bch_51_8_enc(data: bytes) -> bytes:
     Returns:
         bytes: 编码数据
     """
-    g = 0b110011111
+    # g = 0b110011111
+    g = 0b11111001
     return bch_enc(data, g, 51, 8)
-
-
-def bch_15_11_enc(data:bytes) -> bytes:
-    """BCH(15,11,1)编码
-    BCH(15,11,1) n=15, k=11, t=1
-    生成多项式 g(x) = x^4 + x + 1
-
-    Args:
-        data (bytes): 待编码数据
-
-    Returns:
-        bytes: 编码数据
-    """
-    g = 0b10011
-    return bch_enc(data, g, 15, 11)
 
 
 if __name__ == "__main__":
@@ -168,7 +89,7 @@ if __name__ == "__main__":
     for i in range(0, 2**6):
         a = int.from_bytes(bch_21_6_enc(i.to_bytes(1, "big")), "big")
         b = bch21[i]
-        assert a == b, f"Error {i}, expected {b}, got {a}"
+        assert a == b, f"Error {i}, expected {bin(b)[2:]}, got {bin(a)[2:]}"
     for i in range(0, 2**8):
         a = int.from_bytes(bch_51_8_enc(i.to_bytes(1, "big")), "big")
         b = bch51[i]

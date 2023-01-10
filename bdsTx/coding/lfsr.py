@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-12-27 17:30:27
-LastEditTime: 2023-01-10 20:21:00
+LastEditTime: 2023-01-10 21:30:49
 LastEditors: symlpigeon
 Description: Linear Feedback Shift Register
 FilePath: /bds-Sim/bdsTx/coding/lfsr.py
