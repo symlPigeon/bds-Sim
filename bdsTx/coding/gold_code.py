@@ -1,11 +1,11 @@
-'''
+"""
 Author: symlpigeon
 Date: 2023-01-08 14:42:57
 LastEditTime: 2023-01-10 20:18:26
 LastEditors: symlpigeon
 Description: Generate Gold Code
 FilePath: /bds-Sim/bdsTx/coding/gold_code.py
-'''
+"""
 
 
 # Gold 序列由两个LFSR G1和G2生成，其中
@@ -34,10 +34,13 @@ def generate_gold_code(phases: List[int]) -> str:
     phase_selector = 0
     for phase in phases:
         phase_selector += 1 << (phase - 1)
-    phase_selector &= 0x7ff
+    phase_selector &= 0x7FF
     code = ""
     for _ in range(GOLD_CODE_LENGTH):
-        code += str(G1.get() ^ (uint32_swar(np.uint32((G2.get_status() & phase_selector))) & 0x1))
+        code += str(
+            G1.get()
+            ^ (uint32_swar(np.uint32((G2.get_status() & phase_selector))) & 0x1)
+        )
         # shift G2
         _ = G2.get()
     return code

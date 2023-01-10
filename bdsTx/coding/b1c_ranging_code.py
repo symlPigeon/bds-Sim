@@ -1,11 +1,11 @@
-'''
+"""
 Author: symlpigeon
 Date: 2022-11-08 10:06:28
 LastEditTime: 2023-01-08 14:46:21
 LastEditors: symlpigeon
 Description: 生成b1c信号主码
 FilePath: /bds-Sim/bdsTx/coding/b1c_ranging_code.py
-'''
+"""
 
 import json
 from typing import Tuple
@@ -40,11 +40,12 @@ def singleton(cls):
         if cls not in _instance:
             _instance[cls] = cls(*args, **kwargs)
         return _instance[cls]
+
     return _singleton
+
 
 @singleton
 class b1c_prn_loader:
-    
     def __init__(self, filepath: str = "prn_data/b1c_prn_data.json"):
         self.__prn_data = get_prn_data_from_json_file()
 
@@ -67,7 +68,9 @@ class b1c_prn_loader:
             raise ValueError("Invalid PRN number!")
 
 
-def get_b1c_code(prn: int, code_type: str, filepath: str="prn_data/b1c_prn_data.json") -> str:
+def get_b1c_code(
+    prn: int, code_type: str, filepath: str = "prn_data/b1c_prn_data.json"
+) -> str:
     """获取B1C码字
 
     Args:
@@ -77,8 +80,10 @@ def get_b1c_code(prn: int, code_type: str, filepath: str="prn_data/b1c_prn_data.
     Returns:
         bytes: 码字
     """
-    w, p = b1c_prn_loader(filepath).get_prn_data(
-        prn, code_type)["w"], b1c_prn_loader(filepath).get_prn_data(prn, code_type)["p"]
+    w, p = (
+        b1c_prn_loader(filepath).get_prn_data(prn, code_type)["w"],
+        b1c_prn_loader(filepath).get_prn_data(prn, code_type)["p"],
+    )
     if code_type == "data" or code_type == "pilot":
         seq_length = MASTER_WEIL_CODE_LENGTH
         code_length = MASTER_CODE_LENGTH
@@ -93,12 +98,13 @@ def get_b1c_code(prn: int, code_type: str, filepath: str="prn_data/b1c_prn_data.
     for k in range(p - 1, p + code_length - 1):
         code += str(weil_code[k % seq_length])
     # 合并3bit，生成八进制的序列。
-    oct_code = "".join([str(int(code[i:i + 3], 2))
-                       for i in range(0, len(code), 3)])
+    oct_code = "".join([str(int(code[i : i + 3], 2)) for i in range(0, len(code), 3)])
     return oct_code
 
 
-def export_ranging_code(filepath: str= "prn_data/b1c_prn_data.json", outpath:str="ranging_code/b1c/") -> None:
+def export_ranging_code(
+    filepath: str = "prn_data/b1c_prn_data.json", outpath: str = "ranging_code/b1c/"
+) -> None:
     """导出测距码信息
 
     Args:
@@ -113,11 +119,13 @@ def export_ranging_code(filepath: str= "prn_data/b1c_prn_data.json", outpath:str
         with open(outpath + "/prn-" + str(prn) + ".json", "w") as f:
             json.dump(json_data, f, indent=4)
 
+
 if __name__ == "__main__":
     """
     测试正确性
     """
     from colorama import Fore, Style
+
     flag = True
     for prn in range(1, 64, 1):
         for code_type in ["data", "pilot", "sub_pilot"]:
@@ -125,20 +133,24 @@ if __name__ == "__main__":
             first_24 = code[:8]
             last_24 = code[-8:]
             target_first_24 = b1c_prn_loader().get_prn_data(prn, code_type)[
-                "first_24bit"]
-            target_last_24 = b1c_prn_loader().get_prn_data(prn, code_type)[
-                "last_24bit"]
+                "first_24bit"
+            ]
+            target_last_24 = b1c_prn_loader().get_prn_data(prn, code_type)["last_24bit"]
             if first_24 != target_first_24:
                 print(
-                    f"[{Fore.RED}ERROR{Style.RESET_ALL}]  PRN{prn} {code_type} first 24bit error!")
+                    f"[{Fore.RED}ERROR{Style.RESET_ALL}]  PRN{prn} {code_type} first 24bit error!"
+                )
                 print(
-                    f"Should get {Fore.BLUE}{target_first_24}{Style.RESET_ALL}, but get {Fore.BLUE}{first_24}{Style.RESET_ALL}")
+                    f"Should get {Fore.BLUE}{target_first_24}{Style.RESET_ALL}, but get {Fore.BLUE}{first_24}{Style.RESET_ALL}"
+                )
                 flag = False
             if last_24 != target_last_24:
                 print(
-                    f"[{Fore.RED}ERROR{Style.RESET_ALL}]  PRN{prn} {code_type} last 24bit error!")
+                    f"[{Fore.RED}ERROR{Style.RESET_ALL}]  PRN{prn} {code_type} last 24bit error!"
+                )
                 print(
-                    f"Should get {Fore.BLUE}{target_last_24}{Style.RESET_ALL}, but get {Fore.BLUE}{last_24}{Style.RESET_ALL}")
+                    f"Should get {Fore.BLUE}{target_last_24}{Style.RESET_ALL}, but get {Fore.BLUE}{last_24}{Style.RESET_ALL}"
+                )
                 flag = False
     if flag:
         print(f"[{Fore.GREEN}SUCCESS{Style.RESET_ALL}] All tests passed!")

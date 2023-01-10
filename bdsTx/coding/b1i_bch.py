@@ -37,13 +37,14 @@ def bch_15_11_enc(data: bytes) -> bytes:
         out <<= 1
         out += outbit
         nxt_bit = r3 ^ outbit
-        r3 = r2; r2 = r1
+        r3 = r2
+        r2 = r1
         r1 = r0 ^ nxt_bit
         r0 = nxt_bit
     out <<= 4
-    out |= r0 | (r1 << 1) |(r2 << 2)| (r3<< 3)
+    out |= r0 | (r1 << 1) | (r2 << 2) | (r3 << 3)
     return out.to_bytes(2, "big")
-        
+
 
 def bytes2long(b: bytes) -> int:
     """bytes to long
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     print(bin(int.from_bytes(b1i_bch_encode(data), "big"))[2:])
     data = b"\xE2\x40\xDC\xB0"
     print(b1i_bch_encode_word_1(data).hex())
-    
+
     # 01001011011
     # 00000100000
     # 0010000010011010001010
