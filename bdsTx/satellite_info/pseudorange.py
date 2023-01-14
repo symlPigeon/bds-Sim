@@ -66,7 +66,6 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
         float: 相对论效应修正
     """
     e = ephemeris["e"]
-    sqrtA = ephemeris["deltaA/sqrtA"]
     # 与参考时刻的时间差
     bdt_curr_time = utc2bds(curr_time)
     t_k = bdt_curr_time[1] - ephemeris["Toe"]
@@ -77,8 +76,7 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
     # 计算参考时刻长半轴
     match ephemeris["sat_type"]:
         case 1:  # GEO
-            logging.warn("GEO Stellite Position Prediction is not implemented yet")
-            return 0
+            A_ref = GEO_SEMI_MAJOR_AXIS
         case 0b10:  # IGSO
             A_ref = IGSO_SEMI_MAJOR_AXIS
         case 0b11:  # MEO
@@ -86,15 +84,23 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
         case _:
             logging.error(f"Unknown Satellite Type: {ephemeris['sat_type']}")
             return 0
-    A_0 = A_ref - ephemeris["deltaA/sqrtA"]
-    # 计算长半轴
-    A_k = A_0 + ephemeris["A_DOT/EMPTY"] * t_k
+    if ephemeris["support_type"] & 0b10 != 0:
+        # 使用B1C/B2A星历
+        A_0 = A_ref - ephemeris["deltaA"]
+        # 计算长半轴
+        A_0 += ephemeris["A_DOT"] * t_k
+    else:
+        A_0 = pow(ephemeris["sqrtA"], 2)
+    sqrtA = np.sqrt(A_0)
     # 计算参考时刻平均角速度
     n_0 = np.sqrt(GEOCENTRIC_GRAVITATIONAL_CONSTANT / np.power(A_0, 3))
-    # 计算平均角速度偏差
-    Delta_n_A = ephemeris["delta_n0"] + ephemeris["delta_n0_dot"] * 0.5 * t_k
-    # 计算改正后的平均角速度
-    n_A = n_0 + Delta_n_A
+    if ephemeris["support_type"] & 0b10 != 0: # 使用B1C/B2A星历
+        # 计算平均角速度偏差
+        Delta_n_A = ephemeris["delta_n0"] + ephemeris["delta_n0_dot"] * 0.5 * t_k
+        # 计算改正后的平均角速度
+        n_A = n_0 + Delta_n_A
+    else: # 使用B1I/B3I星历
+        n_A = n_0 + ephemeris["delta_n"]
     # 计算平近点角
     M_k = ephemeris["M0"] + n_A * t_k
     # 迭代计算偏近点角

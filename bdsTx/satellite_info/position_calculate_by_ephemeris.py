@@ -46,15 +46,21 @@ def get_stellite_position_by_ephemeris(
         case _:
             logging.error(f"Unknown Satellite Type: {ephemeris['sat_type']}")
             return 0, 0, 0
-    A_0 = A_ref - ephemeris["deltaA/sqrtA"]
-    # 计算长半轴
-    A_k = A_0 + ephemeris["A_DOT/EMPTY"] * t_k
+    if ephemeris["support_type"] & 0b10 != 0: # use B1C/B2A
+        A_0 = A_ref - ephemeris["deltaA"]
+        # 计算长半轴
+        A_0 += ephemeris["A_DOT"] * t_k
+    else: # use B1I/B3I
+        A_0 = pow(ephemeris["sqrtA"], 2)
     # 计算参考时刻平均角速度
     n_0 = np.sqrt(GEOCENTRIC_GRAVITATIONAL_CONSTANT / np.power(A_0, 3))
-    # 计算平均角速度偏差
-    Delta_n_A = ephemeris["delta_n0"] + ephemeris["delta_n0_dot"] * 0.5 * t_k
-    # 计算改正后的平均角速度
-    n_A = n_0 + Delta_n_A
+    if ephemeris["support_type"] & 0b10 != 0: # use B1C/B2A
+        # 计算平均角速度偏差
+        Delta_n_A = ephemeris["delta_n0"] + ephemeris["delta_n0_dot"] * 0.5 * t_k
+        # 计算改正后的平均角速度
+        n_A = n_0 + Delta_n_A
+    else: # use B1I/B3I
+        n_A = n_0 + ephemeris["delta_n0"]
     # 计算平近点角
     M_k = ephemeris["M0"] + n_A * t_k
     # 迭代计算偏近点角
@@ -79,7 +85,7 @@ def get_stellite_position_by_ephemeris(
     # 计算改正后的纬度幅角
     u_k = phi_k + delta_u_k
     # 计算改正后的径向距离
-    r_k = A_k * (1 - ephemeris["e"] * np.cos(E_k)) + delta_r_k
+    r_k = A_0 * (1 - ephemeris["e"] * np.cos(E_k)) + delta_r_k
     # 计算改正后的轨道倾角
     i_k = ephemeris["i0"] + ephemeris["IDOT"] * t_k + delta_i_k
     # 计算卫星在轨道平面内的坐标
@@ -125,14 +131,14 @@ def get_stellite_position_by_ephemeris(
                 [0, 0, 1],
             ]
         )
-        coor = RZ * RX * np.array([X_GK, Y_GK, Z_GK]).T
+        coor = RZ @ RX @ np.array([X_GK, Y_GK, Z_GK]).T
         X_k, Y_k, Z_k = coor
 
     return X_k, Y_k, Z_k
 
 
 if __name__ == "__main__":
-    ref_time = "2022-11-09_06:00:00"
+    ref_time = "2023-01-14_00:00:00"
     import calendar
     import json
     import sys
@@ -140,7 +146,7 @@ if __name__ == "__main__":
     from coordinate_system import ecef2lla
 
     filepath = sys.argv[1]
-    test_time = calendar.timegm((2022, 11, 6, 1, 0, 0))
+    test_time = calendar.timegm((2023, 1, 14, 12, 0, 0))
     with open(filepath, "r") as f:
         ephemeris = json.load(f)
     B = []

@@ -8,8 +8,8 @@ FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
 """
 
 from typing import List, Tuple
-import numpy as np
 
+import numpy as np
 from coordinate_system import ecef2enu
 from position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
 
@@ -82,9 +82,10 @@ def get_visible_satellite(
 
 
 if __name__ == "__main__":
-    import sys
     import json
-    from coordinate_system import lla2ecef, ecef2lla
+    import sys
+
+    from coordinate_system import ecef2lla, lla2ecef
 
     eph_file = sys.argv[1]
     with open(eph_file, "r") as f:
@@ -92,9 +93,11 @@ if __name__ == "__main__":
     rx_pos_blh = (108, 34, 0)
     rx_pos = lla2ecef(*rx_pos_blh)
 
+    import calendar
     import time
 
-    curr_time = time.time()
+    # curr_time = time.time()
+    curr_time = calendar.timegm((2023, 1, 14, 12, 0, 0))
     visible_satellite = get_visible_satellite(ephemeris, rx_pos, curr_time)
     print(visible_satellite.keys())
 
