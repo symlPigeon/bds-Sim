@@ -7,16 +7,15 @@ Description: 电离层参数修正
 FilePath: /sim_bds/python/satellite_info/ionosphere_corr.py
 """
 
-import numpy as np
-import math
-from typing import Tuple, List, Annotated
 import json
+import math
+from typing import Annotated, List, Tuple
 
-from visible_satellite_searcher import calc_elevation_angle, calc_azimuth_angle
-from coordinate_system import ecef2lla
-from time_system import utc2mjd, mjd2mdj_odd_hour
+import numpy as np
 from constants import *
-
+from coordinate_system import ecef2lla
+from time_system import mjd2mdj_odd_hour, utc2mjd
+from visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
 
 _N_I = [0, 1, 1, 1, 2, 2, 2, 2, 2]
 _M_i = [0, 0, 1, -1, 0, 1, -1, 2, -2]
@@ -266,7 +265,7 @@ def get_IPP_mapping_func(
     return M_F
 
 
-def get_iono_delay(
+def get_iono_delay_bdgim(
     user_pos: Tuple[float, float, float],
     sat_pos: Tuple[float, float, float],
     iono_non_broadcast_coeff: dict,
@@ -299,6 +298,7 @@ def get_iono_delay(
 if __name__ == "__main__":
     import sys
     import time
+
     from coordinate_system import lla2ecef
 
     filepath = sys.argv[1]
@@ -310,4 +310,4 @@ if __name__ == "__main__":
     curr_time = time.time()
     carrier_freq = 1575.42e6
 
-    print(get_iono_delay(user_pos, sat_pos, iono_dict, alpha, curr_time, carrier_freq))
+    print(get_iono_delay_bdgim(user_pos, sat_pos, iono_dict, alpha, curr_time, carrier_freq))

@@ -1,11 +1,11 @@
-'''
+"""
 Author: symlpigeon
 Date: 2022-11-09 14:12:40
 LastEditTime: 2022-11-24 09:44:40
 LastEditors: symlpigeon
 Description: 伪距计算
 FilePath: /bds-Sim/bdsTx/satellite_info/pseudorange.py
-'''
+"""
 
 import logging
 from typing import Tuple
@@ -13,12 +13,16 @@ from typing import Tuple
 import numpy as np
 from constants import *
 from eccentric_anomaly import calculate_eccentric_anomaly
-from ionosphere_corr import get_iono_delay
 from position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
 from time_system import utc2bds
 
+from bdsTx.satellite_info.ionosphere_corr_bdgim import get_iono_delay_bdgim
+from bdsTx.satellite_info.ionosphere_corr_klobuchar import get_iono_delay_klobuchar
 
-def get_space_geometry_distance(rx_pos: Tuple[float, float, float], sat_pos: Tuple[float, float, float]) -> float:
+
+def get_space_geometry_distance(
+    rx_pos: Tuple[float, float, float], sat_pos: Tuple[float, float, float]
+) -> float:
     """计算空间几何距离
 
     Args:
@@ -33,7 +37,9 @@ def get_space_geometry_distance(rx_pos: Tuple[float, float, float], sat_pos: Tup
     return np.sqrt((rx_x - sat_x) ** 2 + (rx_y - sat_y) ** 2 + (rx_z - sat_z) ** 2)
 
 
-def get_clock_bias(a0: float, a1: float, a2: float, refer_time: float, curr_time: float) -> float:
+def get_clock_bias(
+    a0: float, a1: float, a2: float, refer_time: float, curr_time: float
+) -> float:
     """计算卫星钟差（未包含相对论修正）
 
     Args:
@@ -55,7 +61,7 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
 
     Args:
         ephemeris (dict): 星历文件
-        
+
     Returns:
         float: 相对论效应修正
     """
@@ -96,7 +102,14 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
     return RELATIVITY_CONSTANT * e * sqrtA * np.sin(E_k)
 
 
-def get_pseudo_range(ephemeris: dict, iono_non_broadcast: dict, iono_corr: list, carrier_freq: float, rx_pos: Tuple[float, float, float], curr_time: float) -> Tuple[float, float]:
+def get_pseudo_range(
+    ephemeris: dict,
+    iono_data: dict,
+    carrier_freq: float,
+    rx_pos: Tuple[float, float, float],
+    curr_time: float,
+    iono_corr_model: str = "bdgim"
+) -> float:
     """计算伪距
 
     Args:
@@ -108,7 +121,9 @@ def get_pseudo_range(ephemeris: dict, iono_non_broadcast: dict, iono_corr: list,
         Tuple[float]: 载波伪距，码字伪距
     """
     # 计算卫星钟差
-    clock_bias = get_clock_bias(ephemeris["a0"], ephemeris["a1"], ephemeris["a2"], ephemeris["Toc"], curr_time)
+    clock_bias = get_clock_bias(
+        ephemeris["a0"], ephemeris["a1"], ephemeris["a2"], ephemeris["Toc"], curr_time
+    )
     # 计算相对论修正
     relativity_corr = get_relativity_corr(ephemeris, curr_time)
     # 计算卫星位置
@@ -116,9 +131,25 @@ def get_pseudo_range(ephemeris: dict, iono_non_broadcast: dict, iono_corr: list,
     # 计算空间几何距离
     space_geometry_distance = get_space_geometry_distance(rx_pos, sat_pos)
     # 电离层延迟
-    iono_delay = get_iono_delay(rx_pos, sat_pos, iono_non_broadcast, iono_corr, curr_time, carrier_freq)
-    # 计算载波伪距
-    carri_rho = (space_geometry_distance + iono_delay) / LIGHT_SPEED + clock_bias + relativity_corr
-    # 计算码伪距
-    code_rho = (space_geometry_distance - iono_delay) / LIGHT_SPEED + clock_bias + relativity_corr
-    return carri_rho, code_rho
+    if iono_corr_model == "bdgim":
+        iono_non_broadcast = iono_data["iono_non_broadcast"]
+        iono_corr = iono_data["iono_corr"]
+        iono_delay = get_iono_delay_bdgim(
+            rx_pos, sat_pos, iono_non_broadcast, iono_corr, curr_time, carrier_freq
+        )
+        # 计算码伪距
+        code_rho = (
+            (space_geometry_distance + iono_delay) / LIGHT_SPEED
+            + clock_bias
+            + relativity_corr
+        )
+    elif iono_corr_model == "klobuchar":
+        alpha = iono_data["alpha"]
+        beta = iono_data["beta"]
+        iono_delay = get_iono_delay_klobuchar(rx_pos, sat_pos, curr_time, alpha, beta)
+        code_rho = space_geometry_distance / LIGHT_SPEED + clock_bias + relativity_corr + iono_delay
+    else:
+        # Invalid Iono Correction Model
+        logging.error(f"Invalid Iono Correction Model: {iono_corr_model}")
+        code_rho = space_geometry_distance / LIGHT_SPEED + clock_bias + relativity_corr
+    return code_rho
