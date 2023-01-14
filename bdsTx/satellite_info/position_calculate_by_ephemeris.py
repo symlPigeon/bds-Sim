@@ -38,8 +38,7 @@ def get_stellite_position_by_ephemeris(
     # 计算参考时刻长半轴
     match ephemeris["sat_type"]:
         case 1:  # GEO
-            logging.warn("GEO Stellite Position Prediction is not implemented yet")
-            return 0, 0, 0
+            A_ref = GEO_SEMI_MAJOR_AXIS
         case 0b10:  # IGSO
             A_ref = IGSO_SEMI_MAJOR_AXIS
         case 0b11:  # MEO
@@ -86,16 +85,48 @@ def get_stellite_position_by_ephemeris(
     # 计算卫星在轨道平面内的坐标
     x_k = r_k * np.cos(u_k)
     y_k = r_k * np.sin(u_k)
-    # 计算改正后的升交点经度
-    Omega_k = (
-        ephemeris["Omega0"]
-        + (ephemeris["Omega_dot"] - EARTH_ROTATION_RATE) * t_k
-        - EARTH_ROTATION_RATE * ephemeris["Toe"]
-    )
-    # 计算卫星在ECEF坐标系下的坐标
-    X_k = x_k * np.cos(Omega_k) - y_k * np.cos(i_k) * np.sin(Omega_k)
-    Y_k = x_k * np.sin(Omega_k) + y_k * np.cos(i_k) * np.cos(Omega_k)
-    Z_k = y_k * np.sin(i_k)
+
+    if ephemeris["sat_type"] == 0b10 or ephemeris["sat_type"] == 0b11:
+        # 针对MEO和IGSO的算法
+        # 计算改正后的升交点经度
+        Omega_k = (
+            ephemeris["Omega0"]
+            + (ephemeris["Omega_dot"] - EARTH_ROTATION_RATE) * t_k
+            - EARTH_ROTATION_RATE * ephemeris["Toe"]
+        )
+        # 计算卫星在ECEF坐标系下的坐标
+        X_k = x_k * np.cos(Omega_k) - y_k * np.cos(i_k) * np.sin(Omega_k)
+        Y_k = x_k * np.sin(Omega_k) + y_k * np.cos(i_k) * np.cos(Omega_k)
+        Z_k = y_k * np.sin(i_k)
+    else:
+        # 针对GEO的算法
+        # 惯性系中历元升交点经度
+        Omega_k = (
+            ephemeris["Omega0"]
+            + ephemeris["Omega_dot"] * t_k
+            - EARTH_ROTATION_RATE * ephemeris["Toe"]
+        )
+        # GEO卫星在自定义坐标系中的坐标
+        X_GK = x_k * np.cos(Omega_k) - y_k * np.cos(i_k) * np.sin(Omega_k)
+        Y_GK = x_k * np.sin(Omega_k) + y_k * np.cos(i_k) * np.cos(Omega_k)
+        Z_GK = y_k * np.sin(i_k)
+        rz_arg = ephemeris["Omega_dot"] * t_k
+        RX = np.array(
+            [
+                [1, 0, 0],
+                [0, np.cos(rz_arg), np.sin(rz_arg)],
+                [0, -np.sin(rz_arg), np.cos(rz_arg)],
+            ]
+        )
+        RZ = np.array(
+            [
+                [np.cos(5 * np.pi / 180), np.sin(5 * np.pi / 180), 0],
+                [-np.sin(5 * np.pi / 180), np.cos(5 * np.pi / 180), 0],
+                [0, 0, 1],
+            ]
+        )
+        coor = RZ * RX * np.array([X_GK, Y_GK, Z_GK]).T
+        X_k, Y_k, Z_k = coor
 
     return X_k, Y_k, Z_k
 
