@@ -7,6 +7,8 @@ Description: BCH(15, 11, 1) for B1I.
 FilePath: /bds-Sim/bdsTx/coding/b1i_bch.py
 """
 
+# NOTE: 最初预期是所有的返回值均采用bytes进行传递，然而电文中大量的数据均不是8bits对齐的，这导致了这里的实现给后面的实现带来了巨大的麻烦。
+
 
 def bch_15_11_enc(data: bytes) -> bytes:
     """BCH(15, 11, 1)编码
@@ -119,6 +121,28 @@ def b1i_bch_encode_word_1(data: bytes) -> bytes:
     enc_data = bch_15_11_enc(data_2.to_bytes(2, "big"))
     return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
 
+
+def b1i_bch_encode_bin(data: str) -> str:
+    """将二进制字符串形式的帧数据进行BCH编码，以及相关的交织等操作
+    这里将数据类型反复转换会带来一定的损失，不过作为弥补最初设计缺陷的措施，只能姑且这样。
+
+    Args:
+        data (str): 待编码数据
+    
+    Returns:
+        str: 二进制字符串形式的编码后的字符串
+    """
+    if len(data) == 26:
+        # word 1
+        enc_data = b1i_bch_encode_word_1(int(data + "000000", 2).to_bytes(4, "big"))
+    elif len(data) == 22:
+        # other words
+        enc_data = b1i_bch_encode(int(data + "00", 2).to_bytes(3, "big"))
+    else:
+        raise Exception("Invalid data length")
+    bin_enc_data = bin(int.from_bytes(enc_data, "big"))[2:]
+    # cut 30 bits
+    return bin_enc_data[:30]
 
 if __name__ == "__main__":
     data = 0b010010110110000010000000.to_bytes(3, "big")
