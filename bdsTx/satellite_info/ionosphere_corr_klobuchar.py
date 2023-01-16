@@ -173,7 +173,6 @@ def get_iono_delay_klobuchar(
 
 
 if __name__ == "__main__":
-    import sys
     import time
 
     from coordinate_system import lla2ecef

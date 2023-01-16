@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 19:22:21
-LastEditTime: 2023-01-14 20:53:23
+LastEditTime: 2023-01-16 15:13:19
 LastEditors: symlpigeon
 Description: 将星历文件转换为json格式
 FilePath: /bds-Sim/bdsTx/satellite_info/convert_ephemeris_to_json.py
@@ -11,41 +11,11 @@ import calendar
 import json
 from typing import List, Tuple
 
+from detect_sat_type import detect_sat_type
 from time_system import utc2bds
 
 
 def get_data(x): return list(filter(None, x.split(' ')))[-1]
-
-
-def detect_sat_type(current_id: str) -> int:
-    """从卫星的PRN号转换为卫星轨道类型
-    1:GEO 2:IGSO 3:MEO
-
-    Args:
-        current_id (str): 卫星PRN
-
-    Returns:
-        int: 轨道类型
-    """
-    prn = int(current_id)
-    # http://www.csno-tarc.cn/system/constellation
-    sat_type = [
-        0, # prn 0 is invalid
-        1, 1, 1, 1, 1, # 1-5
-        2, 2, 2, 2, 2, # 6-10
-        3, 3, 2, 3, 0, # 11-15, prn 15 is empty
-        2, 0, 0, 3, 3, # 16-20, prn 17, 18 is empty
-        3, 3, 3, 3, 3, # 21-25
-        3, 3, 3, 3, 3, # 26-30
-        2, 3, 3, 3, 3, # 31-35
-        3, 3, 2, 2, 2, # 36-40
-        3, 3, 3, 3, 3, # 41-45
-        3, 0, 0, 0, 0, # 46-50, prn 47, 48, 49, 50 is empty
-        0, 0, 0, 0, 0, # 51-55, prn 51, 52, 53, 54, 55 is empty
-        2, 3, 3, 1, 1, # 56-60
-        1
-    ]
-    return sat_type[prn]
 
 
 def render_iono_corr_data(raw_eph_data: List[str]) -> Tuple[dict, dict]:
