@@ -82,6 +82,18 @@ class b1cFrame:
         subframe2 = encoding_subframe2(subframe2, self._ldpc_mat_1)
         subframe3 = encoding_subframe3(subframe3, self._ldpc_mat_2)
         return _mix_subframe(subframe1, subframe2, subframe3)
+    
+    def hex_dump(self, curr_time: float) -> str:
+        """以十六进制形式导出帧数据
+
+        Args:
+            curr_time (float): 当前时间
+
+        Returns:
+            str: 十六进制字符串，B1C帧
+        """
+        frame = self.make_frame(curr_time)
+        return "".join([hex(i)[2:].zfill(2) for i in frame])
 
 
 if __name__ == "__main__":
