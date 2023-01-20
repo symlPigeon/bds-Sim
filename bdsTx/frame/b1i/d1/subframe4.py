@@ -1,13 +1,11 @@
 '''
 Author: symlpigeon
 Date: 2023-01-19 10:14:09
-LastEditTime: 2023-01-20 14:19:54
+LastEditTime: 2023-01-20 14:50:42
 LastEditors: symlpigeon
 Description: D1 导航电文子帧4
 FilePath: /bds-Sim/bdsTx/frame/b1i/d1/subframe4.py
 '''
-
-from re import I
 
 import numpy as np
 
