@@ -1,11 +1,13 @@
 '''
 Author: symlpigeon
 Date: 2023-01-16 17:42:09
-LastEditTime: 2023-01-16 18:52:38
+LastEditTime: 2023-01-20 14:14:35
 LastEditors: symlpigeon
 Description: D1 导航电文子帧3
 FilePath: /bds-Sim/bdsTx/frame/b1i/d1/subframe3.py
 '''
+
+import numpy as np
 
 from bdsTx.coding.b1i_bch import b1i_bch_encode_bin
 from bdsTx.frame.b1i.d1.pre import Pre
@@ -38,7 +40,7 @@ def create_subframe3(curr_time: float, eph: dict) -> str:
     frame += b1i_bch_encode_bin(SOW_l + toe_m)  # toe middle 10 bits + SOW last 12 bits
     
     # ----- Word  3 -----
-    i_0 = data2bincomplement(eph["i0"], 32, pow(2, -31))
+    i_0 = data2bincomplement(eph["i0"], 32, pow(2, -31) * np.pi)
     i_0_h, i_0_l = i_0[0:17], i_0[17:32]
     frame += b1i_bch_encode_bin(toe_l + i_0_h)  # toe last 5 bits + i_0 high 17 bits
     
@@ -48,7 +50,7 @@ def create_subframe3(curr_time: float, eph: dict) -> str:
     frame += b1i_bch_encode_bin(i_0_l + cic_h)  # i_0 low 15 bits + Cic high 7 bits
     
     # ----- Word  5 -----
-    omega_dot = data2bincomplement(eph["Omega_dot"], 24, pow(2, -43))
+    omega_dot = data2bincomplement(eph["Omega_dot"], 24, pow(2, -43) * np.pi)
     omega_dot_h, omega_dot_l = omega_dot[0:11], omega_dot[11:24]
     frame += b1i_bch_encode_bin(cic_l + omega_dot_h)  # Cic low 11 bits + omega_dot high 11 bits
     
@@ -58,17 +60,17 @@ def create_subframe3(curr_time: float, eph: dict) -> str:
     frame += b1i_bch_encode_bin(omega_dot_l + cis_h)  # omega_dot low 13 bits + Cis high 9 bits
     
     # ----- Word  7 -----
-    idot = data2bincomplement(eph["IDOT"], 14, pow(2, -43))
+    idot = data2bincomplement(eph["IDOT"], 14, pow(2, -43) * np.pi)
     idot_h, idot_l = idot[0:13], idot[13:14]
     frame += b1i_bch_encode_bin(cis_l + idot_h)  # Cis low 9 bits + IDOT high 13 bits
     
     # ----- Word  8 -----
-    omega_0 = data2bincomplement(eph["Omega0"], 32, pow(2, -31))
+    omega_0 = data2bincomplement(eph["Omega0"], 32, pow(2, -31) * np.pi)
     omega_0_h, omega_0_l = omega_0[0:21], omega_0[21:32]
     frame += b1i_bch_encode_bin(idot_l + omega_0_h)  # IDOT low 1 bit + Omega_0 high 21 bits
     
     # ----- Word  9 -----
-    omega = data2bincomplement(eph["omega"], 32, pow(2, -31))
+    omega = data2bincomplement(eph["omega"], 32, pow(2, -31) * np.pi)
     omega_h, omega_l = omega[0:11], omega[11:32]
     frame += b1i_bch_encode_bin(omega_0_l + omega_h)  # Omega_0 low 11 bits + omega high 11 bits
     

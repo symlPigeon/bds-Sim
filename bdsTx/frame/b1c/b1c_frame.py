@@ -83,7 +83,7 @@ class b1cFrame:
         subframe3 = encoding_subframe3(subframe3, self._ldpc_mat_2)
         return _mix_subframe(subframe1, subframe2, subframe3)
     
-    def hex_dump(self, curr_time: float) -> str:
+    def make_hexframe(self, curr_time: float) -> str:
         """以十六进制形式导出帧数据
 
         Args:
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     import time
 
     from bdsTx.coding.ldpc_mat import ldpcMat_44_88, ldpcMat_100_200
-    eph = json.load(open("../../satellite_info/ephemeris/tarc3130.22b.json", "r"))["22"]["2022-11-09_12:00:00"]
+    eph = json.load(open("../../satellite_info/ephemeris/tarc0140.json", "r"))["22"]["2023-01-14_00:00:00"]
     bdgim = json.load(open("../../../bdsTx/satellite_info/ionosphere/iono_corr.json", "r", encoding="utf-8"))
     bdgim = bdgim["bdgim"]["a"]["alpha"]
     mat1 = json.load(open("../../coding/ldpc_mat_gen/ldpc_matG_100_200.json", "r"))

@@ -28,11 +28,11 @@ def make_ephemeris1(ephemeris: dict) -> str:
     ans += data2bincomplement(ephemeris["sat_type"], 2, 1)
     ans += data2bincomplement(ephemeris["deltaA"], 26, pow(2, -9))
     ans += data2bincomplement(ephemeris["A_DOT"], 25, pow(2, -21))
-    ans += data2bincomplement(ephemeris["delta_n0"], 17, pow(2, -44))
-    ans += data2bincomplement(ephemeris["delta_n0_dot"], 23, pow(2, -57))
-    ans += data2bincomplement(ephemeris["M0"], 33, pow(2, -32))
+    ans += data2bincomplement(ephemeris["delta_n0"], 17, pow(2, -44) * np.pi)
+    ans += data2bincomplement(ephemeris["delta_n0_dot"], 23, pow(2, -57) * np.pi)
+    ans += data2bincomplement(ephemeris["M0"], 33, pow(2, -32) * np.pi)
     ans += data2bincomplement(ephemeris["e"], 33, pow(2, -34))
-    ans += data2bincomplement(ephemeris["omega"], 33, pow(2, -32))
+    ans += data2bincomplement(ephemeris["omega"], 33, pow(2, -32) * np.pi)
     return ans
 
 
@@ -46,9 +46,9 @@ def make_ephemeris2(ephemeris:dict) -> str:
         str: 二进制字符串形式的星历II
     """
     ans = ""
-    ans += data2bincomplement(ephemeris["Omega0"], 33, pow(2, -32))
-    ans += data2bincomplement(ephemeris["i0"], 33, pow(2, -32))
-    ans += data2bincomplement(ephemeris["Omega_dot"], 19, pow(2, -44))
+    ans += data2bincomplement(ephemeris["Omega0"], 33, pow(2, -32) * np.pi)
+    ans += data2bincomplement(ephemeris["i0"], 33, pow(2, -32) * np.pi)
+    ans += data2bincomplement(ephemeris["Omega_dot"], 19, pow(2, -44) * np.pi)
     ans += data2bincomplement(ephemeris["IDOT"], 15, pow(2, -44))
     ans += data2bincomplement(ephemeris["Cis"], 16, pow(2, -30))
     ans += data2bincomplement(ephemeris["Cic"], 16, pow(2, -30))

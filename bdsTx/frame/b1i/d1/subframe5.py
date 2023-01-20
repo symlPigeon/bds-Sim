@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2023-01-19 11:39:51
-LastEditTime: 2023-01-19 11:41:29
+LastEditTime: 2023-01-20 14:20:19
 LastEditors: symlpigeon
 Description: D1 导航电文子帧5
 FilePath: /bds-Sim/bdsTx/frame/b1i/d1/subframe5.py
@@ -32,16 +32,13 @@ def create_subframe5(curr_time: float, alc: dict, page_id: int = 1) -> str:
     
     # Parameters
     WN, SOW = utc2bds(curr_time)
+    alc = alc[str(page_id)]
     sow = data2bin(SOW, 20, 1)
     sqrtA = data2bin(alc["SquareRootOfSemiMajorAxis"], 24, pow(2, -11))
-        # NOTE: I'm not sure if multiply pi is a correct idea...
-        # The range of omega0 is [-1, 1], but the value in almanac file exceeds the range.
-        # So I wonder if i should multiply pi to the value...
-        # Yes, the omega and m0 are also in the same situation.
     omega0 = data2bincomplement(alc["RightAscenAtWeek"], 24, pow(2, -23) * np.pi)
-    delta_i = data2bincomplement(alc["OrbitalInclination"], 16, pow(2, -19))
+    delta_i = data2bincomplement(alc["OrbitalInclination"], 16, pow(2, -19) * np.pi)
     toa = data2bin(alc["TimeOfApplicability"], 8, pow(2, 12))
-    omega_dot = data2bincomplement(alc["RateOfRightAscension"], 17, pow(2, -38))
+    omega_dot = data2bincomplement(alc["RateOfRightAscension"], 17, pow(2, -38) * np.pi)
     omega = data2bincomplement(alc["ArgumentOfPerigee"], 24, pow(2, -23) * np.pi)
     e = data2bin(alc["Eccentricity"], 17, pow(2, -21))
     m0 = data2bincomplement(alc["MeanAnomaly"], 24, pow(2, -23) * np.pi)

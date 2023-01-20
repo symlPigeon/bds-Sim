@@ -8,6 +8,8 @@ FilePath: /bds-Sim/bdsTx/frame/b1i/d1/subframe2.py
 """
 
 
+import numpy as np
+
 from bdsTx.coding.b1i_bch import b1i_bch_encode_bin
 from bdsTx.frame.b1i.d1.pre import Pre
 from bdsTx.frame.util import data2bin, data2bincomplement
@@ -39,7 +41,9 @@ def create_subframe2(curr_time: float, eph: dict) -> str:
     # ----- Word  2 -----
     word2 = ""
     word2 += SOW[8:20]  # SOW last 12 bits
-    delta_n = data2bincomplement(eph["delta_n0"], 16, pow(2, -43))
+        # NOTE: In BDS frame, the unit of delta_n is pi/s, however in ephemeris file, the unit is rad/s
+        # SO we need to convert the unit. Some other parameters also need to be converted.
+    delta_n = data2bincomplement(eph["delta_n0"], 16, pow(2, -43) * np.pi)
     delta_n_h = delta_n[0:10]  # delta_n first 10 bits
     delta_n_l = delta_n[10:16]  # delta_n last 6 bits
     word2 += delta_n_h  # delta_n high 10 bits
@@ -57,7 +61,7 @@ def create_subframe2(curr_time: float, eph: dict) -> str:
     # ----- Word  4 -----
     word4 = ""
     word4 += cuc_l  # Cuc low 2 bits
-    M0 = data2bincomplement(eph["M0"], 32, pow(2, -31))
+    M0 = data2bincomplement(eph["M0"], 32, pow(2, -31) * np.pi)
     M0_h = M0[0:20]
     M0_l = M0[20:32]
     word4 += M0_h  # M0 high 20 bits
