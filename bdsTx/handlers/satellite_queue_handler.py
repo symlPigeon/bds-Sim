@@ -25,6 +25,7 @@ class satelliteQueueHandler(baseSourceHandler):
         self,
         ranging_code_path: str,
         ephemeris_path: str,
+        almanac_path: str,
         iono_corr_path: str,
         ldpc_mat_path: str,
         queue_size: int = 4,
@@ -33,6 +34,7 @@ class satelliteQueueHandler(baseSourceHandler):
         # ranging code太多了，还是让satellite handler自己去读取吧
         self._ranging_code_path = ranging_code_path
         self._load_ephemeris_path(ephemeris_path)
+        self._load_almanac_path(almanac_path)
         self._load_ldpc_mat(ldpc_mat_path)
         self._load_iono_corr(iono_corr_path)
         self._queue = []
@@ -44,6 +46,10 @@ class satelliteQueueHandler(baseSourceHandler):
     def _load_ephemeris_path(self, ephemeris_path: str) -> None:
         with open(ephemeris_path, "r", encoding="utf-8") as f:
             self._ephemeris = json.load(f)
+            
+    def _load_almanac_path(self, almanac_path: str) -> None:
+        with open(almanac_path, "r", encoding="utf-8") as f:
+            self._almanac = json.load(f)
 
     def _load_ldpc_mat(self, ldpc_path: str) -> None:
         with open(ldpc_path + "/ldpc_matG_100_200.json", "r", encoding="utf-8") as f:
@@ -105,3 +111,7 @@ class satelliteQueueHandler(baseSourceHandler):
                 min_diff = diff
                 target_time = t
         return eph[target_time]
+    
+    def get_almanac(self) -> dict:
+        # get all the almanac data
+        return self._almanac

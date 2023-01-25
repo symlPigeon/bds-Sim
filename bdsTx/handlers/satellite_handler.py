@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, List
 from base_object import baseProcessorHandler, baseSourceHandler
 
 from bdsTx.frame.b1c import b1c_frame
+from bdsTx.frame.b1i import b1i_frame
 
 if TYPE_CHECKING:
     from satellite_queue_handler import satelliteQueueHandler
@@ -28,6 +29,7 @@ class satelliteHandler(baseSourceHandler):
     ):
         self._ranging_code = manager.get_ranging_code(prn)
         self._ephemeris = manager.get_ephemeris(prn)
+        self._almanac = manager.get_almanac()
         self._ldpc_mat_1 = manager.get_ldpc_mat_1()
         self._ldpc_mat_2 = manager.get_ldpc_mat_2()
         self._next_handler = next_handler
@@ -68,3 +70,12 @@ class b1cSatelliteHandler(satelliteHandler):
     def trigger(self):
         logging.info(f"{self} - b1cSatelliteHandler trigger")
         self._produce()
+
+
+class b1iSatelliteHandler(satelliteHandler):
+    def __init__(self, prn: int, manager: satelliteQueueHandler, next_handler: baseProcessorHandler):
+        super().__init__(prn, manager, next_handler)
+        self._iono_corr = manager.get_iono_corr("klobuchar")
+        self._frame_creater = b1i_frame.b1iFrame(
+            prn, self._ephemeris, self._iono_corr, self._almanac
+        )
