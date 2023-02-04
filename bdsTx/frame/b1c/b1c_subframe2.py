@@ -10,7 +10,7 @@ FilePath: /bdsTx/frame/b1c/b1c_subframe2.py
 import numpy as np
 
 from bdsTx.coding import crc24q, ldpc, pre_ldpc
-from bdsTx.frame.util import data2bincomplement
+from bdsTx.frame.util import data2bin, data2bincomplement
 from bdsTx.satellite_info import time_system
 
 
@@ -79,7 +79,7 @@ def make_clockbias(ephemeris: dict) -> str:
 def make_subframe2(curr_time: float, ephemeris: dict) -> bytes:
     bds_week, bds_second = time_system.utc2bds(curr_time)
     WN = data2bincomplement(bds_week & 0x1FFF, 13)
-    how = data2bincomplement(int(bds_second / 3600) & 0xFF, 8)
+    how = data2bin(int(bds_second / 3600) & 0xFF, 8)
     iode = data2bincomplement(ephemeris["iode"] & 0x3FF, 10)
     iodc = data2bincomplement(ephemeris["iodc"] & 0xFF, 8)
     eph1 = make_ephemeris1(ephemeris)

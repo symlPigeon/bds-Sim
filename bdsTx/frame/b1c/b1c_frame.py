@@ -11,11 +11,11 @@ import json
 from typing import List
 
 import numpy as np
-from b1c_subframe1 import encoding_subframe1, make_subframe1
-from b1c_subframe2 import encoding_subframe2, make_subframe2
-from b1c_subframe3 import encoding_subframe3, make_subframe3
 
 from bdsTx.coding.interleaving import interleaving
+from bdsTx.frame.b1c.b1c_subframe1 import encoding_subframe1, make_subframe1
+from bdsTx.frame.b1c.b1c_subframe2 import encoding_subframe2, make_subframe2
+from bdsTx.frame.b1c.b1c_subframe3 import encoding_subframe3, make_subframe3
 
 
 def _mix_subframe(
@@ -100,7 +100,6 @@ if __name__ == "__main__":
     import json
     import time
 
-    from bdsTx.coding.ldpc_mat import ldpcMat_44_88, ldpcMat_100_200
     eph = json.load(open("../../satellite_info/ephemeris/tarc0140.json", "r"))["22"]["2023-01-14_00:00:00"]
     bdgim = json.load(open("../../../bdsTx/satellite_info/ionosphere/iono_corr.json", "r", encoding="utf-8"))
     bdgim = bdgim["bdgim"]["a"]["alpha"]
