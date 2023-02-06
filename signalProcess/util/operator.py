@@ -1,14 +1,13 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-06 15:46:11
-LastEditTime: 2023-02-06 17:27:49
+LastEditTime: 2023-02-06 18:22:14
 LastEditors: symlPigeon 2163953074@qq.com
 Description: Operator for signal processing
 FilePath: /bds-Sim/signalProcess/util/operator.py
 '''
 
-from abc import ABC
-from typing import Any, Callable, List, Sequence, Type
+from typing import Any, Callable, List, Type
 
 import numpy as np
 
@@ -74,19 +73,16 @@ class multiPortXor(multiPortOperator):
         
         
 if __name__ == "__main__":
+    from signalProcess.signal_source.sine_wave import sineWaveSource
+    from signalProcess.signal_source.square_wave import squareWaveSource
     from signalProcess.util.data_util import vectorSource
-    data1 = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], dtype=np.uint8)
-    data2 = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], dtype=np.uint8)
-    s1 = vectorSource(data1, True)
-    s2 = vectorSource(data2, True)
-    add = multiPortAdd([s1, s2])
-    for i in range(20):
-        print(next(add), end=" ")
-        
-    print()
-        
-    mul = multiPortMultiply([s1, s2])
-    for i in range(20):
-        print(next(mul), end=" ")
-        
-        
+    
+    vec_src = vectorSource([i // 100 + 1 for i in range(1000)], True)
+    sin_src = sineWaveSource(1, 100, 0, 1000, 1)
+    
+    mul = multiPortMultiply([vec_src, sin_src])    
+    ans = [next(mul) for _ in range(1000)]
+    
+    import matplotlib.pyplot as plt
+    plt.plot(ans)
+    plt.show()
