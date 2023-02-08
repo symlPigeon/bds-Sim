@@ -11,10 +11,9 @@ import logging
 from abc import abstractmethod
 from typing import TYPE_CHECKING, List
 
-from base_object import baseProcessorHandler, baseSourceHandler
-
 from bdsTx.frame.b1c import b1c_frame
 from bdsTx.frame.b1i import b1i_frame
+from bdsTx.handlers.base_object import baseProcessorHandler, baseSourceHandler
 
 if TYPE_CHECKING:
     from satellite_queue_handler import satelliteQueueHandler
