@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-07 11:37:52
- * @LastEditTime: 2023-02-07 12:24:18
+ * @LastEditTime: 2023-02-09 12:09:17
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: Definition for dataSource
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.hpp
@@ -21,17 +21,22 @@ public:
     typedef std::shared_ptr<dataSource> sptr;
     static sptr                         make(const std::string& data,
                                              const int          bits_per_symbol,
-                                             const bool         is_repeat);
+                                             const bool         is_repeat,
+                                             const int          init_phase);
 };
 
 class hexDataSource : public dataSource {
+public:
     typedef std::shared_ptr<hexDataSource> sptr;
-    static sptr make(const std::string& data, const bool is_repeat);
+    static sptr
+    make(const std::string& data, const bool is_repeat, const int init_phase);
 };
 
 class octDataSource : public dataSource {
+public:
     typedef std::shared_ptr<octDataSource> sptr;
-    static sptr make(const std::string& data, const bool is_repeat);
+    static sptr
+    make(const std::string& data, const bool is_repeat, const int init_phase);
 };
 
 class dataSource_impl : public dataSource {
@@ -45,7 +50,8 @@ private:
 public:
     dataSource_impl(const std::string& data,
                     const int          bits_per_symbol,
-                    const bool         is_repeat);
+                    const bool         is_repeat,
+                    const int          init_phase);
     ~dataSource_impl(){};
 
     int work(int                        noutput_items,
@@ -55,12 +61,16 @@ public:
 
 class hexDataSource_impl : public dataSource_impl {
 public:
-    hexDataSource_impl(const std::string& data, const bool is_repeat);
+    hexDataSource_impl(const std::string& data,
+                       const bool         is_repeat,
+                       const int          init_phase = 0);
 };
 
 class octDataSource_impl : public dataSource_impl {
 public:
-    octDataSource_impl(const std::string& data, const bool is_repeat);
+    octDataSource_impl(const std::string& data,
+                       const bool         is_repeat,
+                       const int          init_phase = 0);
 };
 
 } // namespace signalProcess

@@ -27,14 +27,18 @@ find_package(Gnuradio "3.10" COMPONENTS
     soapy
 )
 
-set(SOURCES_BPSK util/dataSource.cpp bpsk/bpsk_main.cpp)
-set(SOURCES_BOC util/dataSource.cpp)
+find_package(nlohmann_json REQUIRED)
+find_package(Boost REQUIRED)
 
-set(HEADERS_BPSK util/dataSource.hpp)
+set(SOURCES_BPSK util/dataSource.cpp bpsk/bpsk_main.cpp util/satInfo.cpp)
+set(SOURCES_BOC util/dataSource.cpp util/satInfo.cpp)
+
+set(HEADERS_BPSK util/dataSource.hpp util/satInfo.hpp bpsk/bpsk_main.hpp)
 set(HEADERS_BOC util/dataSource.hpp)
 
 add_executable(bds_bpsk ${SOURCES_BPSK} ${HEADERS_BPSK})
 
 target_link_libraries(bds_bpsk
     gnuradio::gnuradio-blocks
+    nlohmann_json
 )
