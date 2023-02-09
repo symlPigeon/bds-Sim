@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-07 11:38:03
- * @LastEditTime: 2023-02-09 12:41:14
+ * @LastEditTime: 2023-02-09 16:21:58
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: Implementation for dataSource
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.cpp
@@ -10,8 +10,31 @@
 #include "dataSource.hpp"
 
 #include <gnuradio/io_signature.h>
+#include <gnuradio/sptr_magic.h>
 
 namespace signalProcess {
+
+dataSource::sptr dataSource::make(const std::string& data,
+                                  const int          bits_per_symbol,
+                                  const bool         is_repeat,
+                                  const int          init_phase) {
+    return gnuradio::make_block_sptr<dataSource_impl>(
+        data, bits_per_symbol, is_repeat, init_phase);
+}
+
+hexDataSource::sptr hexDataSource::make(const std::string& data,
+                                        const bool         is_repeat,
+                                        const int          init_phase) {
+    return gnuradio::make_block_sptr<hexDataSource_impl>(
+        data, is_repeat, init_phase);
+}
+
+octDataSource::sptr octDataSource::make(const std::string& data,
+                                        const bool         is_repeat,
+                                        const int          init_phase) {
+    return gnuradio::make_block_sptr<octDataSource_impl>(
+        data, is_repeat, init_phase);
+}
 
 dataSource_impl::dataSource_impl(const std::string& data,
                                  const int          bits_per_symbol,
@@ -22,7 +45,8 @@ dataSource_impl::dataSource_impl(const std::string& data,
                      gr::io_signature::make(1, 1, sizeof(float))),
       bits_per_symbol(bits_per_symbol),
       is_repeat(is_repeat),
-      idx(init_phase),
+      idx(init_phase >= 0 ? init_phase
+                          : data.length() * bits_per_symbol + init_phase),
       data_size(data.size() * bits_per_symbol) {
     // convert data to lower case
     std::string data_lower;

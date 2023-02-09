@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-07 11:37:52
- * @LastEditTime: 2023-02-09 12:09:17
+ * @LastEditTime: 2023-02-09 16:15:09
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: Definition for dataSource
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.hpp
@@ -59,14 +59,14 @@ public:
              gr_vector_void_star&       output_items);
 };
 
-class hexDataSource_impl : public dataSource_impl {
+class hexDataSource_impl : public dataSource_impl, public hexDataSource {
 public:
     hexDataSource_impl(const std::string& data,
                        const bool         is_repeat,
                        const int          init_phase = 0);
 };
 
-class octDataSource_impl : public dataSource_impl {
+class octDataSource_impl : public dataSource_impl, public octDataSource {
 public:
     octDataSource_impl(const std::string& data,
                        const bool         is_repeat,
