@@ -34,7 +34,7 @@ class LFSR:
         self._reg = initial_phase
 
     def get(self) -> int:
-        # The output bit is the LSB of the register
+        # The output bit is the MSB of the register
         out_bit = (self._reg & (1 << (self._l - 1))) >> (self._l - 1)
         fb_status = self._reg & self._g
         fb_val = 0
@@ -54,6 +54,9 @@ class LFSR:
         for _ in range(cnt):
             ans += str(self.get())
         return ans
+
+    def reset(self, initial_phase: int) -> None:
+        self._reg = initial_phase
 
 
 if __name__ == "__main__":

@@ -1,0 +1,319 @@
+{
+    "data": [
+        {
+            "prn": 1,
+            "init_phase_num": 4,
+            "init_phase": "1010111111111"
+        },
+        {
+            "prn": 2,
+            "init_phase_num": 11,
+            "init_phase": "1111000101011"
+        },
+        {
+            "prn": 3,
+            "init_phase_num": 13,
+            "init_phase": "1011110001010"
+        },
+        {
+            "prn": 4,
+            "init_phase_num": 22,
+            "init_phase": "1111111111011"
+        },
+        {
+            "prn": 5,
+            "init_phase_num": 30,
+            "init_phase": "1100100011111"
+        },
+        {
+            "prn": 6,
+            "init_phase_num": 36,
+            "init_phase": "1001001100100"
+        },
+        {
+            "prn": 7,
+            "init_phase_num": 44,
+            "init_phase": "1111111010010"
+        },
+        {
+            "prn": 8,
+            "init_phase_num": 48,
+            "init_phase": "1110111111101"
+        },
+        {
+            "prn": 9,
+            "init_phase_num": 88,
+            "init_phase": "1010000000010"
+        },
+        {
+            "prn": 10,
+            "init_phase_num": 104,
+            "init_phase": "0010000011011"
+        },
+        {
+            "prn": 11,
+            "init_phase_num": 116,
+            "init_phase": "1110101110000"
+        },
+        {
+            "prn": 12,
+            "init_phase_num": 129,
+            "init_phase": "0010110011110"
+        },
+        {
+            "prn": 13,
+            "init_phase_num": 376,
+            "init_phase": "0110010010101"
+        },
+        {
+            "prn": 14,
+            "init_phase_num": 418,
+            "init_phase": "0111000100110"
+        },
+        {
+            "prn": 15,
+            "init_phase_num": 458,
+            "init_phase": "1000110001001"
+        },
+        {
+            "prn": 16,
+            "init_phase_num": 682,
+            "init_phase": "1110001111100"
+        },
+        {
+            "prn": 17,
+            "init_phase_num": 696,
+            "init_phase": "0010011000101"
+        },
+        {
+            "prn": 18,
+            "init_phase_num": 707,
+            "init_phase": "0000011101100"
+        },
+        {
+            "prn": 19,
+            "init_phase_num": 1078,
+            "init_phase": "1000101010111"
+        },
+        {
+            "prn": 20,
+            "init_phase_num": 2069,
+            "init_phase": "0001011011110"
+        },
+        {
+            "prn": 21,
+            "init_phase_num": 2248,
+            "init_phase": "0010000101101"
+        },
+        {
+            "prn": 22,
+            "init_phase_num": 2574,
+            "init_phase": "0010110001010"
+        },
+        {
+            "prn": 23,
+            "init_phase_num": 2596,
+            "init_phase": "0001011001111"
+        },
+        {
+            "prn": 24,
+            "init_phase_num": 2731,
+            "init_phase": "0011001100010"
+        },
+        {
+            "prn": 25,
+            "init_phase_num": 4294,
+            "init_phase": "0011101001000"
+        },
+        {
+            "prn": 26,
+            "init_phase_num": 4436,
+            "init_phase": "0100100101001"
+        },
+        {
+            "prn": 27,
+            "init_phase_num": 4647,
+            "init_phase": "1011011010011"
+        },
+        {
+            "prn": 28,
+            "init_phase_num": 4978,
+            "init_phase": "1010111100010"
+        },
+        {
+            "prn": 29,
+            "init_phase_num": 4986,
+            "init_phase": "0001011110101"
+        },
+        {
+            "prn": 30,
+            "init_phase_num": 1,
+            "init_phase": "0111111111111"
+        },
+        {
+            "prn": 31,
+            "init_phase_num": 5209,
+            "init_phase": "0110110001111"
+        },
+        {
+            "prn": 32,
+            "init_phase_num": 5539,
+            "init_phase": "1010110001001"
+        },
+        {
+            "prn": 33,
+            "init_phase_num": 6061,
+            "init_phase": "1001010101011"
+        },
+        {
+            "prn": 34,
+            "init_phase_num": 6488,
+            "init_phase": "1100110100101"
+        },
+        {
+            "prn": 35,
+            "init_phase_num": 7130,
+            "init_phase": "1101001011101"
+        },
+        {
+            "prn": 36,
+            "init_phase_num": 7165,
+            "init_phase": "1111101110100"
+        },
+        {
+            "prn": 37,
+            "init_phase_num": 7403,
+            "init_phase": "0010101100111"
+        },
+        {
+            "prn": 38,
+            "init_phase_num": 5879,
+            "init_phase": "1110100010000"
+        },
+        {
+            "prn": 39,
+            "init_phase_num": 1681,
+            "init_phase": "1101110010000"
+        },
+        {
+            "prn": 40,
+            "init_phase_num": 5080,
+            "init_phase": "1101011001110"
+        },
+        {
+            "prn": 41,
+            "init_phase_num": 5938,
+            "init_phase": "1000000110100"
+        },
+        {
+            "prn": 42,
+            "init_phase_num": 3983,
+            "init_phase": "0101111011001"
+        },
+        {
+            "prn": 43,
+            "init_phase_num": 6208,
+            "init_phase": "0110110111100"
+        },
+        {
+            "prn": 44,
+            "init_phase_num": 7223,
+            "init_phase": "1101001110001"
+        },
+        {
+            "prn": 45,
+            "init_phase_num": 2996,
+            "init_phase": "0011100100010"
+        },
+        {
+            "prn": 46,
+            "init_phase_num": 1814,
+            "init_phase": "0101011000101"
+        },
+        {
+            "prn": 47,
+            "init_phase_num": 6906,
+            "init_phase": "1001111100110"
+        },
+        {
+            "prn": 48,
+            "init_phase_num": 6144,
+            "init_phase": "1111101001000"
+        },
+        {
+            "prn": 49,
+            "init_phase_num": 4713,
+            "init_phase": "0000101001001"
+        },
+        {
+            "prn": 50,
+            "init_phase_num": 7406,
+            "init_phase": "1000010101100"
+        },
+        {
+            "prn": 51,
+            "init_phase_num": 7264,
+            "init_phase": "1111001001100"
+        },
+        {
+            "prn": 52,
+            "init_phase_num": 1766,
+            "init_phase": "0100110001111"
+        },
+        {
+            "prn": 53,
+            "init_phase_num": 5347,
+            "init_phase": "0000000011000"
+        },
+        {
+            "prn": 54,
+            "init_phase_num": 3515,
+            "init_phase": "1000000000100"
+        },
+        {
+            "prn": 55,
+            "init_phase_num": 7951,
+            "init_phase": "0011010100110"
+        },
+        {
+            "prn": 56,
+            "init_phase_num": 7054,
+            "init_phase": "1011001000110"
+        },
+        {
+            "prn": 57,
+            "init_phase_num": 3884,
+            "init_phase": "0111001111000"
+        },
+        {
+            "prn": 58,
+            "init_phase_num": 6067,
+            "init_phase": "0010111001010"
+        },
+        {
+            "prn": 59,
+            "init_phase_num": 4230,
+            "init_phase": "1100111110110"
+        },
+        {
+            "prn": 60,
+            "init_phase_num": 3803,
+            "init_phase": "1001001000101"
+        },
+        {
+            "prn": 61,
+            "init_phase_num": 869,
+            "init_phase": "0111000100000"
+        },
+        {
+            "prn": 62,
+            "init_phase_num": 3683,
+            "init_phase": "0011001000010"
+        },
+        {
+            "prn": 63,
+            "init_phase_num": 1205,
+            "init_phase": "0010001001110"
+        }
+    ]
+}

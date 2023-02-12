@@ -1,48 +1,44 @@
-"""
-Author: symlpigeon
-Date: 2023-01-08 16:05:00
-LastEditTime: 2023-01-09 22:02:43
-LastEditors: symlpigeon
-Description: 生成B1I信号测距码
-FilePath: /bds-Sim/bdsTx/coding/b1i_ranging_code.py
-"""
-
-#  FIXME : B1I PRN-40 is different from the data in b1icode.csv
-#          So, which one is correct?
+'''
+Author: symlPigeon 2163953074@qq.com
+Date: 2023-02-12 11:37:25
+LastEditTime: 2023-02-12 12:17:59
+LastEditors: symlPigeon 2163953074@qq.com
+Description: ranging code generator for B3I
+FilePath: /bds-Sim/bdsTx/coding/b3i_ranging_code.py
+'''
 
 import json
 
-from bdsTx.coding.gold_code import b1i_generate_gold_code
+from bdsTx.coding.gold_code import b3i_generate_gold_code
 
 
-def get_phase_data_from_file(filename: str = "prn_data/b1i_phase_info.json") -> dict:
+def load_phase(filename: str = "prn_data/b3i_phase_data.json") -> dict:
     with open(filename, "r") as f:
         data = json.load(f)
     return data
 
-
-def export_b1i_ranging_code(
-    filepath: str = "prn_data/b1i_phase_info.json", outpath: str = "ranging_code/b1i/"
+def export_b3i_ranging_code(
+    filepath: str = "prn_data/b3i_phase_data.json", outpath: str = "ranging_code/b3i/"
 ) -> None:
-    phase_data = get_phase_data_from_file(filepath)
+    phase_data = load_phase(filepath)
     for entry in phase_data["data"]:
         json_data = {}
         json_data["prn"] = entry["prn"]
-        phase = entry["phase"]
-        code = b1i_generate_gold_code(phase)
+        phase = entry["init_phase"]
+        code = b3i_generate_gold_code(int(phase[::-1], 2))
         json_data["prn"] = "".join(
             [str(int(code[i : i + 3], 2)) for i in range(0, len(code), 3)]
         )
         with open(outpath + f"prn-{entry['prn']}.json", "w") as f:
             f.write(json.dumps(json_data, indent=4))
-
-
+            
+            
 if __name__ == "__main__":
-    # Generating B1I ranging code
-    export_b1i_ranging_code()
+    # Generating B3I ranging code
+    export_b3i_ranging_code()
     print("Generated!")
     # verify
-    with open("prn_data/b1icode.csv", "r") as f:
+    with open("prn_data/b3icode.csv", "r") as f:
         code_data = f.read()
     code_data = code_data.split("\n")
     while "" in code_data:
@@ -52,10 +48,10 @@ if __name__ == "__main__":
         v_code = "".join(
             [str(int(v_code[i : i + 3], 2)) for i in range(0, len(v_code), 3)]
         )
-        with open("ranging_code/b1i/prn-" + str(prn) + ".json", "r") as f:
+        with open("ranging_code/b3i/prn-" + str(prn) + ".json", "r") as f:
             t_code = json.load(f)["prn"]
         if v_code != t_code:
             print(v_code)
             print(t_code)
             print(f"prn-{prn} is wrong!")
-            # exit(1)
+            exit(1)
