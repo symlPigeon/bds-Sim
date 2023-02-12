@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-07 12:53:16
- * @LastEditTime: 2023-02-09 16:57:02
+ * @LastEditTime: 2023-02-12 10:41:12
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: BPSK
  * @FilePath: /bds-Sim/signalProcess/bpsk/bpsk_main.cpp
@@ -16,7 +16,9 @@
 #include <gnuradio/uhd/usrp_sink.h>
 #include <uhd/stream.hpp>
 
-bpsk_main::bpsk_main(const signalProcess::b1ISatInfo satInfo[MAX_SAT_NUM]) {
+bpsk_main::bpsk_main(const signalProcess::b1ISatInfo satInfo[MAX_SAT_NUM],
+                     const std::string&              uhd_addr)
+    : device(uhd_addr) {
     // Init the Top block
     this->tb = gr::make_top_block("BPSK-B1I/B3I");
 
@@ -103,7 +105,7 @@ bpsk_main::bpsk_main(const signalProcess::b1ISatInfo satInfo[MAX_SAT_NUM]) {
     this->gr_uhd_usrp_sink =
         gr::uhd::usrp_sink::make(this->device, ::uhd::stream_args_t("fc32"));
     this->gr_uhd_usrp_sink->set_samp_rate(this->sample_rate);
-    this->gr_uhd_usrp_sink->set_center_freq(this->center_freq);
+    this->gr_uhd_usrp_sink->set_center_freq(this->signal_freq);
     this->gr_uhd_usrp_sink->set_gain(this->gain);
     this->gr_uhd_usrp_sink->set_antenna("TX/RX", 0);
     this->gr_uhd_usrp_sink->set_time_unknown_pps(::uhd::time_spec_t());

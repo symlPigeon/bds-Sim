@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-07 13:09:30
- * @LastEditTime: 2023-02-09 16:54:47
+ * @LastEditTime: 2023-02-12 10:41:08
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: BPSK
  * @FilePath: /bds-Sim/signalProcess/bpsk/bpsk_main.hpp
@@ -78,7 +78,6 @@ private:
     //
     // 信号频率
     double      signal_freq = 1561.098e6;
-    double      center_freq = 0;
     std::string device      = "";
     double      gain        = 40;
 
@@ -86,7 +85,8 @@ public:
     //----------------//
     // REQUIRED DEFS  //
     //----------------//
-    bpsk_main(const signalProcess::b1ISatInfo satInfo[MAX_SAT_NUM]);
+    bpsk_main(const signalProcess::b1ISatInfo satInfo[MAX_SAT_NUM],
+              const std::string&              uhd_addr);
     ~bpsk_main(){};
     gr::top_block_sptr tb;
     double             get_samp_rate() const;
