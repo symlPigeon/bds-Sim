@@ -105,7 +105,7 @@ class b1iFrame:
 if __name__ == "__main__":
     import json
     import time
-    eph = json.load(open("../../satellite_info/ephemeris/tarc0140.json"))["30"]["2023-01-14_00:00:00"]
+    eph = json.load(open("../../satellite_info/ephemeris/tarc0140.json"))["12"]["2023-01-14_00:00:00"]
     klo = json.load(open("../../satellite_info/ionosphere/iono_corr.json"))["klobuchar"]["a"]
     alc = json.load(open("../../satellite_info/almanac/tarc0190.23alc.json"))
     frame_maker = b1iFrame(30, eph, klo, alc)

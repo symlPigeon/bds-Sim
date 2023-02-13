@@ -7,7 +7,7 @@ Description: 可见星搜寻
 FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 from coordinate_system import ecef2enu
@@ -51,7 +51,12 @@ def calc_azimuth_angle(
     return np.arctan2(sat_pos_enu[0], sat_pos_enu[1]) * 180 / np.pi
 
 
-def get_visible_satellite(ephemeris: dict, rx_pos: Tuple[float, float, float], curr_time: float, threshold: float = 10.) -> Dict[int, Tuple[float, dict]]:
+def get_visible_satellite(
+    ephemeris: dict,
+    rx_pos: Tuple[float, float, float],
+    curr_time: float,
+    threshold: float = 10.0,
+) -> Dict[int, Tuple[float, dict]]:
     """获取可见卫星
 
     Args:
@@ -69,7 +74,9 @@ def get_visible_satellite(ephemeris: dict, rx_pos: Tuple[float, float, float], c
         time_keys = list(ephemeris[prn].keys())
         closest_time = get_closest_timestamp(time_keys, curr_time)
         ecef_rx_pos = lla2ecef(*rx_pos)
-        ecef_sat_pos = get_stellite_position_by_ephemeris(ephemeris[prn][closest_time], curr_time)
+        ecef_sat_pos = get_stellite_position_by_ephemeris(
+            ephemeris[prn][closest_time], curr_time
+        )
         elevation = calc_elevation_angle(ecef_rx_pos, ecef_sat_pos)
         if elevation > threshold:
             visible_sat[i_prn] = (elevation, ephemeris[prn][closest_time])
@@ -98,8 +105,12 @@ if __name__ == "__main__":
     tags = []
     pos = []
     for key in visible_satellite:
-        closest_time = get_closest_timestamp(ephemeris["{:02d}".format(key)].keys(), curr_time)
-        x, y, z = get_stellite_position_by_ephemeris(ephemeris["{:02d}".format(key)][closest_time], curr_time)
+        closest_time = get_closest_timestamp(
+            ephemeris["{:02d}".format(key)].keys(), curr_time
+        )
+        x, y, z = get_stellite_position_by_ephemeris(
+            ephemeris["{:02d}".format(key)][closest_time], curr_time
+        )
         print(x, y, z)
         l, b, h = ecef2lla(x, y, z)
         E, A = calc_elevation_angle(rx_pos, (x, y, z)), calc_azimuth_angle(

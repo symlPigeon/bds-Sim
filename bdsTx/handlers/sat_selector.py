@@ -1,14 +1,14 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 11:17:51
-LastEditTime: 2023-02-13 12:33:11
+LastEditTime: 2023-02-13 14:28:09
 LastEditors: symlPigeon 2163953074@qq.com
 Description: Select satellite for PVT calculation
 FilePath: /bds-Sim/bdsTx/handlers/sat_selector.py
 '''
 
 import logging
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from bdsTx.satellite_info.broadcast_type import *
 from bdsTx.satellite_info.detect_sat_type import *
@@ -23,7 +23,7 @@ class satelliteSelector:
             ephemeris (dict): 星历文件
         """
         self._eph = ephemeris
-        self._valid_sats = []
+        self._valid_sats: List[Tuple[int, dict]] = []
         
     def select(self, time: float, pos: Tuple[float, float, float], broadcast_type: int) -> None:
         """选择播发的卫星
@@ -39,17 +39,27 @@ class satelliteSelector:
         if broadcast_type not in SIGNAL_TYPE.SUPPORT_SIGNAL_TYPE:
             # 要是广播类型不支持的话就返回空
             logging.error("Unsupported broadcast type: %d" % broadcast_type)
+            logging.error("Only these types are supported:")
+            logging.error("  SIGNAL_TYPE.B1I -- 1")
+            logging.error("  SIGNAL_TYPE.B3I -- 2")
+            logging.error("  SIGNAL_TYPE.B1C -- 3")
+            logging.error("  SIGNAL_TYPE.B2A -- 4 (NOT IMPLEMENTED YET)")
             self._valid_sats = []
             return
         self._valid_sats = []
         # 暂时我们还是用默认的可视角吧
         visible_sats = get_visible_satellite(self._eph, pos, time)
-        for eph in visible_sats:
-            if is_signal_able_to_tx(eph, broadcast_type):
-                self._valid_sats.append(eph)
-        
-        
-    def get_satellites(self) -> List[dict]:
+        for prn in visible_sats:
+            if is_signal_able_to_tx(prn, broadcast_type):
+                self._valid_sats.append((prn, visible_sats[prn][1]))
+                logging.info("Satellite %02d is selected" % prn)
+                logging.info("--------------------------")
+                logging.info("+ PRN : %02d" % prn)
+                logging.info("+ Elevation : %f" % visible_sats[prn][0])
+                logging.info("--------------------------")
+        logging.info("Total %d satellites are selected" % len(self._valid_sats))
+                
+    def get_satellites(self) -> List[Tuple[int, dict]]:
         """获取可用的卫星
 
         Returns:
