@@ -1,9 +1,9 @@
 """
-Author: symlpigeon
+Author: symlPigeon 2163953074@qq.com
 Date: 2023-01-08 14:42:57
-LastEditTime: 2023-01-10 20:18:26
-LastEditors: symlpigeon
-Description: Generate Gold Code
+LastEditTime: 2023-02-13 11:17:20
+LastEditors: symlPigeon 2163953074@qq.com
+Description: 
 FilePath: /bds-Sim/bdsTx/coding/gold_code.py
 """
 
@@ -61,7 +61,8 @@ def b3i_generate_gold_code(phase: int) -> str:
     for _ in range(B3I_GOLD_CODE_LENGTH):
         # # Why it worked?
         # # if g1 is in init condition, init it
-        
+        # # B3I 的G1序列长度截断为8190
+
         # if G1.get_status() == B3I_GOLD_CODE_G1_INIT_COND_PHASE:
         #     #print("reset")
         #     G1.reset(B3I_GOLD_CODE_G1_INIT_PHASE)
@@ -71,4 +72,3 @@ def b3i_generate_gold_code(phase: int) -> str:
         code += str(G1.get() ^ G2.get())
         G1_cnt += 1
     return code
-        

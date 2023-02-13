@@ -7,11 +7,11 @@ Description: UTC - GPS - BDS 时间转换
 FilePath: /sim_bds/python/satellite_info/time_system.py
 """
 
-import time
-import datetime
 import calendar
+import datetime
 import math
-from typing import Tuple
+import time
+from typing import List, Tuple
 
 
 def utc2bds(utc_time: float) -> Tuple[int, float]:
@@ -85,6 +85,22 @@ def mjd2mdj_odd_hour(mjd: float) -> float:
     if int(hour) % 2 == 0:
         hour += 1
     return int(hour)
+
+
+def get_closest_timestamp(timestamps: List[str], target_time: float) -> str:
+    """从一坨时间戳里面挑一个最近的时间戳
+
+    Args:
+        timestamps (List[str]): 时间戳列表
+        target_time (float): 目标时间
+
+    Returns:
+        str: 最近的一个时间戳
+    """
+    # convert YYYY-MM-DD HH:MM:SS to timestamp
+    float_timestamps = [(calendar.timegm(time.strptime(x, "%Y-%m-%d_%H:%M:%S")), x) for x in timestamps]
+    float_timestamps = sorted(float_timestamps, key=lambda x: abs(x[0] - target_time))
+    return float_timestamps[0][1]
 
 
 if __name__ == "__main__":

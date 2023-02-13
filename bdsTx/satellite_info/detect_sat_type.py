@@ -1,11 +1,16 @@
 '''
 Author: symlpigeon
 Date: 2023-01-16 15:11:29
-LastEditTime: 2023-01-16 15:12:55
-LastEditors: symlpigeon
+LastEditTime: 2023-02-13 11:49:02
+LastEditors: symlPigeon 2163953074@qq.com
 Description: 判断卫星类型
 FilePath: /bds-Sim/bdsTx/satellite_info/detect_sat_type.py
 '''
+
+class SAT_TYPE:
+    SAT_TYPE_GEO = 1
+    SAT_TYPE_IGSO = 2
+    SAT_TYPE_MEO = 3
 
 def detect_sat_type(current_id: str) -> int:
     """从卫星的PRN号转换为卫星轨道类型

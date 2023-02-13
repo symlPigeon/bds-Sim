@@ -7,11 +7,12 @@ Description: 可见星搜寻
 FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
 """
 
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 from coordinate_system import ecef2enu
 from position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
+from time_system import get_closest_timestamp
 
 
 def calc_elevation_angle(
@@ -50,35 +51,29 @@ def calc_azimuth_angle(
     return np.arctan2(sat_pos_enu[0], sat_pos_enu[1]) * 180 / np.pi
 
 
-def get_visible_satellite(
-    ephemeris: dict,
-    rx_pos: Tuple[float, float, float],
-    curr_time: float,
-    threshold: float = 10,
-) -> dict:
+def get_visible_satellite(ephemeris: dict, rx_pos: Tuple[float, float, float], curr_time: float, threshold: float = 10.) -> Dict[int, Tuple[float, dict]]:
     """获取可见卫星
 
     Args:
-        ephemeris (List[dict]): 卫星星历
-        rx_pos (Tuple[float, float, float]): 接收机位置
-        curr (float): 当前UTC时间
-        threshold (float, optional): 仰角阈值. Defaults to 10.
+        ephemeris (dict): 卫星星历文件，整个文件的内容一起扔进来吧
+        rx_pos (Tuple[float, float, float]): 卫星的位置，LLH
+        curr_time (float): 当前的时间，UTC时间戳就行了
+        threshold (float): 一个可见星仰角的阈值，就先设置为10吧
 
     Returns:
-        List[dict]: 可见卫星的星历
+        Dict[int, Tuple[float, dict]]: 返回一个可见卫星的PRN和仰角、星历的对应字典
     """
-    visible_satellite = {}
-    for eph in ephemeris:
-        # 选择最新的一个版本
-        time_keys = list(ephemeris[eph].keys())
-        time_keys.sort()
-        time_index = time_keys[-1]
-        sat_pos = get_stellite_position_by_ephemeris(
-            ephemeris[eph][time_index], curr_time
-        )
-        if calc_elevation_angle(rx_pos, sat_pos) > threshold:
-            visible_satellite[eph] = ephemeris[eph][time_index]
-    return visible_satellite
+    visible_sat = {}
+    for prn in ephemeris:
+        i_prn = int(prn)
+        time_keys = list(ephemeris[prn].keys())
+        closest_time = get_closest_timestamp(time_keys, curr_time)
+        ecef_rx_pos = lla2ecef(*rx_pos)
+        ecef_sat_pos = get_stellite_position_by_ephemeris(ephemeris[prn][closest_time], curr_time)
+        elevation = calc_elevation_angle(ecef_rx_pos, ecef_sat_pos)
+        if elevation > threshold:
+            visible_sat[i_prn] = (elevation, ephemeris[prn][closest_time])
+    return visible_sat
 
 
 if __name__ == "__main__":
@@ -90,22 +85,21 @@ if __name__ == "__main__":
     eph_file = sys.argv[1]
     with open(eph_file, "r") as f:
         ephemeris = json.load(f)
-    rx_pos_blh = (108, 34, 0)
-    rx_pos = lla2ecef(*rx_pos_blh)
+    rx_pos = (108, 34, 0)
 
     import calendar
     import time
 
-    # curr_time = time.time()
-    curr_time = calendar.timegm((2023, 1, 14, 12, 0, 0))
+    curr_time = time.time()
     visible_satellite = get_visible_satellite(ephemeris, rx_pos, curr_time)
     print(visible_satellite.keys())
 
     B, L, H = [], [], []
     tags = []
     pos = []
-    for eph in visible_satellite:
-        x, y, z = get_stellite_position_by_ephemeris(visible_satellite[eph], curr_time)
+    for key in visible_satellite:
+        closest_time = get_closest_timestamp(ephemeris["{:02d}".format(key)].keys(), curr_time)
+        x, y, z = get_stellite_position_by_ephemeris(ephemeris["{:02d}".format(key)][closest_time], curr_time)
         print(x, y, z)
         l, b, h = ecef2lla(x, y, z)
         E, A = calc_elevation_angle(rx_pos, (x, y, z)), calc_azimuth_angle(
@@ -115,13 +109,13 @@ if __name__ == "__main__":
         B.append(b)
         L.append(l)
         H.append(h)
-        tags.append(f"{eph}({E},{A})")
+        tags.append(f"{key}({E},{A})")
     for b, l in zip(B, L):
         print(l, b)
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
 
-    m = Basemap(projection="ortho", lat_0=rx_pos_blh[1], lon_0=rx_pos_blh[0])
+    m = Basemap(projection="ortho", lat_0=rx_pos[1], lon_0=rx_pos[0])
     m.drawmapboundary(fill_color="aqua")
     m.fillcontinents(color="yellow", lake_color="aqua")
     m.drawcoastlines()

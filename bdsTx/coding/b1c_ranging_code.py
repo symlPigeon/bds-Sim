@@ -8,7 +8,6 @@ FilePath: /bds-Sim/bdsTx/coding/b1c_ranging_code.py
 """
 
 import json
-from typing import Tuple
 
 from weil_code import get_weil_code, legendre_seq
 
@@ -47,7 +46,7 @@ def singleton(cls):
 @singleton
 class b1c_prn_loader:
     def __init__(self, filepath: str = "prn_data/b1c_prn_data.json"):
-        self.__prn_data = get_prn_data_from_json_file()
+        self.__prn_data = get_prn_data_from_json_file(filepath)
 
     def get_prn_data(self, prn: int, code_type: str) -> dict:
         """获取PRN信息
