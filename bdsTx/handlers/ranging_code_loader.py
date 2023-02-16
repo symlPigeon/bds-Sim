@@ -4,7 +4,7 @@ Date: 2023-02-13 15:12:06
 LastEditTime: 2023-02-14 16:18:53
 LastEditors: symlpigeon
 Description: 读取测距码
-FilePath: \bds-Sim\bdsTx\handlers\ranging_code_loader.py
+FilePath: /bds-Sim/bdsTx/handlers/ranging_code_loader.py
 """
 
 import json
@@ -13,7 +13,7 @@ import logging
 from bdsTx.satellite_info.broadcast_type import SIGNAL_TYPE
 
 
-class ranging_code_reader:
+class rangingCodeReader:
     def __init__(self, filepath: str):
         self._filepath = filepath
 

@@ -1,8 +1,8 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 15:49:30
-LastEditTime: 2022-11-23 14:55:17
-LastEditors: symlpigeon
+LastEditTime: 2023-02-16 16:13:45
+LastEditors: symlPigeon 2163953074@qq.com
 Description: 常数定义
 FilePath: /bds-Sim/bdsTx/satellite_info/constants.py
 '''
@@ -35,3 +35,8 @@ GEO_MAGNETIC_NORTH_POLE_LATITUDE = 80.27 / 180 * np.pi
 LIGHT_SPEED = 299792458
 # 相对论常量 F=-2\sqrt{\mu}/C^2
 RELATIVITY_CONSTANT = -4.442807633e-10
+
+# B1C 载波频率
+B1C_CARRIER_FREQ = 1575.42e6
+# B1I 载波频率
+B1I_CARRIER_FREQ = 1561.098e6

@@ -1,11 +1,13 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 11:17:51
-LastEditTime: 2023-02-13 14:28:09
+LastEditTime: 2023-02-16 15:10:02
 LastEditors: symlPigeon 2163953074@qq.com
 Description: Select satellite for PVT calculation
 FilePath: /bds-Sim/bdsTx/handlers/sat_selector.py
 '''
+
+from __future__ import annotations
 
 import logging
 from typing import Dict, List, Tuple
@@ -25,7 +27,7 @@ class satelliteSelector:
         self._eph = ephemeris
         self._valid_sats: List[Tuple[int, dict]] = []
         
-    def select(self, time: float, pos: Tuple[float, float, float], broadcast_type: int) -> None:
+    def select(self, time: float, pos: Tuple[float, float, float], broadcast_type: int) -> satelliteSelector:
         """选择播发的卫星
 
         Args:
@@ -45,7 +47,7 @@ class satelliteSelector:
             logging.error("  SIGNAL_TYPE.B1C -- 3")
             logging.error("  SIGNAL_TYPE.B2A -- 4 (NOT IMPLEMENTED YET)")
             self._valid_sats = []
-            return
+            return self
         self._valid_sats = []
         # 暂时我们还是用默认的可视角吧
         visible_sats = get_visible_satellite(self._eph, pos, time)
@@ -58,6 +60,7 @@ class satelliteSelector:
                 logging.info("+ Elevation : %f" % visible_sats[prn][0])
                 logging.info("--------------------------")
         logging.info("Total %d satellites are selected" % len(self._valid_sats))
+        return self
                 
     def get_satellites(self) -> List[Tuple[int, dict]]:
         """获取可用的卫星

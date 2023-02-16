@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 14:36:47
-LastEditTime: 2023-02-13 14:45:06
+LastEditTime: 2023-02-16 14:38:08
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 读取电离层修正数据
 FilePath: /bds-Sim/bdsTx/handlers/iono_corr_loader.py
@@ -11,7 +11,7 @@ import json
 import logging
 
 
-class iono_corr:
+class ionoCorrReader:
     def __init__(self, filepath: str) -> None:
         """初始化电离层修正数据读取器
 

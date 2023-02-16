@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-09 12:59:01
- * @LastEditTime: 2023-02-12 10:03:42
+ * @LastEditTime: 2023-02-16 15:29:15
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: 用于存储卫星信息、解析bdsTx模块传输的数据
  * @FilePath: /bds-Sim/signalProcess/util/satInfo.hpp
@@ -28,7 +28,7 @@ private:
     int               delay;
 
 public:
-    b1ISatInfo(const json& raw_data);
+    b1ISatInfo(const json& raw_data, const int id);
     ~b1ISatInfo(){};
     std::string getPrn() const;
     satType     getType() const;
