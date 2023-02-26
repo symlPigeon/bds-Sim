@@ -295,7 +295,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1896, 524.0]
+    coordinate: [1880, 524.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_0
@@ -392,7 +392,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1824, 724.0]
+    coordinate: [1880, 692.0]
     rotation: 0
     state: true
 - name: uhd_usrp_sink_0
@@ -1105,7 +1105,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1440, 764.0]
+    coordinate: [1448, 716.0]
     rotation: 0
     state: true
 - name: vecsrc
