@@ -7,17 +7,21 @@ Description: 伪距计算
 FilePath: /bds-Sim/bdsTx/satellite_info/pseudorange.py
 """
 
+import json
 import logging
 from typing import Tuple
 
 import numpy as np
-from constants import *
-from eccentric_anomaly import calculate_eccentric_anomaly
-from position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
-from time_system import utc2bds
 
-from bdsTx.satellite_info.ionosphere_corr_bdgim import get_iono_delay_bdgim
-from bdsTx.satellite_info.ionosphere_corr_klobuchar import get_iono_delay_klobuchar
+from .constants import *
+from .eccentric_anomaly import calculate_eccentric_anomaly
+from .ionosphere.bdgim_non_broadcast_coefficients import (
+    BDGIM_NON_BROADCAST_COEFFICIENTS,
+)
+from .ionosphere_corr_bdgim import get_iono_delay_bdgim
+from .ionosphere_corr_klobuchar import get_iono_delay_klobuchar
+from .position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
+from .time_system import utc2bds
 
 
 def get_space_geometry_distance(
@@ -100,7 +104,7 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
         # 计算改正后的平均角速度
         n_A = n_0 + Delta_n_A
     else: # 使用B1I/B3I星历
-        n_A = n_0 + ephemeris["delta_n"]
+        n_A = n_0 + ephemeris["delta_n0"]
     # 计算平近点角
     M_k = ephemeris["M0"] + n_A * t_k
     # 迭代计算偏近点角
@@ -108,7 +112,7 @@ def get_relativity_corr(ephemeris: dict, curr_time: float) -> float:
     return RELATIVITY_CONSTANT * e * sqrtA * np.sin(E_k)
 
 
-def get_pseudo_range(
+def get_pseudo_range_impl(
     ephemeris: dict,
     iono_data: dict,
     carrier_freq: float,
@@ -124,11 +128,11 @@ def get_pseudo_range(
         curr_time (float): 当前时刻 UTC
 
     Returns:
-        Tuple[float]: 载波伪距，码字伪距
+        float: 伪距
     """
     # 计算卫星钟差
     clock_bias = get_clock_bias(
-        ephemeris["a0"], ephemeris["a1"], ephemeris["a2"], ephemeris["Toc"], curr_time
+        ephemeris["a0"], ephemeris["a1"], ephemeris["a2"], ephemeris["toc"], curr_time
     )
     # 计算相对论修正
     relativity_corr = get_relativity_corr(ephemeris, curr_time)
@@ -150,8 +154,9 @@ def get_pseudo_range(
             + relativity_corr
         )
     elif iono_corr_model == "klobuchar":
-        alpha = iono_data["alpha"]
-        beta = iono_data["beta"]
+        iono_corr = iono_data["iono_corr"]
+        alpha = iono_corr["alpha"]
+        beta = iono_corr["beta"]
         iono_delay = get_iono_delay_klobuchar(rx_pos, sat_pos, curr_time, alpha, beta)
         code_rho = space_geometry_distance / LIGHT_SPEED + clock_bias + relativity_corr + iono_delay
     else:
@@ -159,3 +164,34 @@ def get_pseudo_range(
         logging.error(f"Invalid Iono Correction Model: {iono_corr_model}")
         code_rho = space_geometry_distance / LIGHT_SPEED + clock_bias + relativity_corr
     return code_rho
+
+
+
+
+
+def get_pseudo_range(
+    ephemeris: dict,
+    iono_data: dict | list,
+    carrier_freq: float,
+    rx_pos: Tuple[float, float, float],
+    curr_time: float,
+    iono_corr_model: str = "bdgim"
+) -> float:
+    """_summary_
+
+    Args:
+        ephemeris (dict): _description_
+        iono_data (dict | list): _description_
+        carrier_freq (float): _description_
+        rx_pos (Tuple[float, float, float]): _description_
+        curr_time (float): _description_
+        iono_corr_model (str, optional): _description_. Defaults to "bdgim".
+
+    Returns:
+        float: _description_
+    """
+    iono = {
+        "iono_corr": iono_data,
+        "iono_non_broadcast": BDGIM_NON_BROADCAST_COEFFICIENTS
+    }
+    return get_pseudo_range_impl(ephemeris, iono, carrier_freq, rx_pos, curr_time, iono_corr_model)

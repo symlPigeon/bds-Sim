@@ -10,9 +10,10 @@ FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
 from typing import Dict, Tuple
 
 import numpy as np
-from coordinate_system import ecef2enu
-from position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
-from time_system import get_closest_timestamp
+
+from .coordinate_system import ecef2enu, lla2ecef
+from .position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
+from .time_system import get_closest_timestamp
 
 
 def calc_elevation_angle(

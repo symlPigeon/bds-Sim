@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-16 14:36:05
-LastEditTime: 2023-02-16 16:34:35
+LastEditTime: 2023-03-06 12:42:00
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 输出卫星信息和数据帧
 FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
@@ -9,6 +9,7 @@ FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
 
 from __future__ import annotations
 
+import logging
 from typing import List, Tuple
 
 from bdsTx.handlers.alc_reader import almanacReader
@@ -16,11 +17,11 @@ from bdsTx.handlers.eph_reader import ephemerisReader
 from bdsTx.handlers.iono_corr_loader import ionoCorrReader
 from bdsTx.handlers.ldpc_loader import ldpcLoader
 from bdsTx.handlers.msg_generator import messageGenerator
-from bdsTx.handlers.pseudorange_calc import pseudoRangeGenerator
 from bdsTx.handlers.ranging_code_loader import rangingCodeReader
 from bdsTx.handlers.sat_selector import satelliteSelector
 from bdsTx.satellite_info.broadcast_type import SIGNAL_TYPE
 from bdsTx.satellite_info.constants import *
+from bdsTx.satellite_info.coordinate_system import lla2ecef
 from bdsTx.satellite_info.detect_sat_type import detect_sat_type
 
 
@@ -244,7 +245,8 @@ class satelliteHandler:
                     "ldpc_mat_1": self._ldpc_mats[0], 
                     "ldpc_mat_2": self._ldpc_mats[1],
                     "iono_corr": self._iono_corr.get_bdgim(),
-                    "frame_order": [1] # FIXME: Set this value according to the real-world situtation
+                    "frame_order": [1], # FIXME: Set this value according to the real-world situtation
+                    "pos": lla2ecef(*self._pos),
                 }
             case SIGNAL_TYPE.B2A_SIGNAL:
                 # NOT IMPLEMENTED YET
@@ -253,6 +255,7 @@ class satelliteHandler:
                 args = {
                     "iono_corr": self._iono_corr.get_klobuchar(),
                     "almanac": self._alc,
+                    "pos": lla2ecef(*self._pos),
                 }
             case _:
                 raise ValueError("Invalid signal type!")
@@ -262,25 +265,29 @@ class satelliteHandler:
     def generate(self) -> list:
         datas = []
         msgs = self._sat_msg_generator.gen_message(self._time, self._broadcast_time, self._sat_msg_gen_args)
-        match self._signal_type:
-            case SIGNAL_TYPE.B1C_SIGNAL:
-                freq = B1C_CARRIER_FREQ
-            case SIGNAL_TYPE.B2A_SIGNAL:
-                freq = 0
-            case SIGNAL_TYPE.B1I_SIGNAL:
-                freq = B1I_CARRIER_FREQ
-            case SIGNAL_TYPE.B3I_SIGNAL:
-                freq = 0
-            case _:
-                raise ValueError("Invalid signal type!")
-        cnt = 0
+            
         for prn in msgs:
             data = {
-                "data": msgs[prn],
+                "data": msgs[prn]["data"],
                 "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type),
                 "type": {1: "GEO", 2:"IGSO", 3:"MEO"}[detect_sat_type(prn)],
-                "delay": 0,
+                "delay": msgs[prn]["delay"]
             }
-            datas[cnt] = data
-            cnt += 1
+            datas.append(data)
         return datas
+    
+    
+if __name__ == "__main__":
+    import json
+    import time
+    logging.basicConfig(level=logging.DEBUG)
+    handler = satelliteHandler()
+    handler.set_alc_path("../satellite_info/almanac/tarc0190.23alc.json").set_eph_path("../satellite_info/ephemeris/tarc0140.json")
+    handler.set_time(time.time()).set_position((120, 30, 0)).set_broadcast_time(120)
+    handler.set_iono_path("../satellite_info/ionosphere/iono_corr.json")
+    handler.set_prn_path("../coding/ranging_code/")
+    handler.set_signal_type(SIGNAL_TYPE.B1I_SIGNAL)
+    handler.load_alc().load_eph().load_iono_corr().find_satellite().init_msg_gen()
+    msg = handler.generate()
+    with open("msg.json", "w") as f:
+        f.write(json.dumps(msg, indent=4))

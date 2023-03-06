@@ -11,9 +11,10 @@ import logging
 from typing import Tuple
 
 import numpy as np
-from constants import *
-from eccentric_anomaly import calculate_eccentric_anomaly
-from time_system import utc2bds
+
+from .constants import *
+from .eccentric_anomaly import calculate_eccentric_anomaly
+from .time_system import utc2bds
 
 
 def get_stellite_position_by_ephemeris(

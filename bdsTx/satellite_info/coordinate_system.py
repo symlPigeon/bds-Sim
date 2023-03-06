@@ -10,8 +10,10 @@ FilePath: /sim_bds/python/satellite_info/coordinate_system.py
 # Reference: https://en.wikipedia.org/wiki/Geographic_coordinate_conversion
 
 from typing import Tuple
+
 import numpy as np
-from constants import *
+
+from .constants import *
 
 
 def lla2ecef(L: float, B: float, H: float) -> Tuple[float, float, float]:

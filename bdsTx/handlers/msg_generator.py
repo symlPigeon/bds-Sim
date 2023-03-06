@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 13:57:17
-LastEditTime: 2023-02-13 15:09:52
+LastEditTime: 2023-03-06 12:49:44
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 生成导航信息
 FilePath: /bds-Sim/bdsTx/handlers/msg_generator.py
@@ -13,7 +13,9 @@ from typing import List, Tuple
 from bdsTx.frame.b1c.b1c_frame import b1cFrame
 from bdsTx.frame.b1i.b1i_frame import b1iFrame
 from bdsTx.handlers.ldpc_loader import ldpcLoader
+from bdsTx.handlers.pseudorange_calc import pseudoRangeGenerator  # 在MSG生成部分实现伪距计算
 from bdsTx.satellite_info.broadcast_type import *
+from bdsTx.satellite_info.constants import *
 from bdsTx.satellite_info.detect_sat_type import *
 
 
@@ -41,30 +43,47 @@ class messageGenerator:
         self._sats = satellites
         self._broadcast_type = broadcast_type
         
-    def _gen_b1c_frame(self, curr_time: float, total_time: float, ldpc_mat_1: ldpcLoader, ldpc_mat_2: ldpcLoader, iono_corr: list, frame_order: List[int]) -> dict:
+    def _gen_b1c_frame(self, curr_time: float, total_time: float, pos: Tuple[float, float, float], ldpc_mat_1: ldpcLoader, ldpc_mat_2: ldpcLoader, iono_corr: list, frame_order: List[int]) -> dict:
         ans = {}
         for i in range(4):
             prn, eph = self._sats[i]
             generator = b1cFrame(prn, eph, iono_corr, frame_order, ldpc_mat_1.get(), ldpc_mat_2.get())
+            ans[prn] = {
+                "data": "",
+                "delay": 0
+            }
             for j in range(int(total_time / 18)):
                 # 18s一个帧
-                ans[prn] += generator.make_hexframe(curr_time + 18 * j)
+                ans[prn]["data"] += generator.make_hexframe(curr_time + 18 * j)
+            prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="bdgim")
+            ans[prn]["delay"] = prange.get_pseudo_range()
         return ans
     
-    def _gen_b1i_frame(self, curr_time: float, total_time: float, iono_corr: dict, almanac: dict) -> dict:
+    def _gen_b1i_frame(self, curr_time: float, total_time: float, pos: Tuple[float, float, float], iono_corr: dict, almanac: dict) -> dict:
         ans = {}
         cnt = 0
+        selected = 0
         try:
-            while cnt < 4:
+            while selected < 4 and cnt < len(self._sats):
                 prn, eph = self._sats[cnt]
                 if detect_sat_type(prn) == SAT_TYPE.SAT_TYPE_GEO:
-                    logging.warning("Satellite %d is a GEO satellite")
+                    logging.warning("Satellite %d is a GEO satellite" % prn)
                     logging.warning("  which broadcasts D2 message, is not implemented yet!")
+                    cnt += 1 # Update the counter
                     continue
+                selected += 1
+                ans[prn] = {
+                    "data": "",
+                    "delay": 0
+                }
                 generator = b1iFrame(prn, eph, iono_corr, almanac)
                 for j in range(int(total_time / 30)):
                     # 30s一个帧
-                    ans[prn] += generator.make_hexframe(curr_time + 30 * j)
+                    ans[prn]["data"] += generator.make_hexframe(curr_time + 30 * j)
+                # FIXME: B3I carrier frequency is different, which will cause a different pseudorange
+                # Creating a new method for B3I!
+                prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="klobuchar")
+                ans[prn]["delay"] = prange.get_pseudo_range()
                 cnt += 1
         except IndexError as e:
             logging.error("Ooops! It seems that there're not enough MEO and IGSO satellites.")
@@ -84,11 +103,13 @@ class messageGenerator:
                 ldpc_mat_2: ldpc_loader, // LDPC(44,88)矩阵
                 iono_corr: list, // BDGIM模型参数
                 frame_order: List[int] // 不同帧的顺序
+                pos: Tuple[float, float, float] // 接收机位置
             }
             对于B1I/B3I，你需要提供这些信息：
             {
                 iono_corr: dict, // Klobuchar模型参数
-                almanac: dict // 历书数据
+                almanac: dict, // 历书数据
+                pos: Tuple[float, float, float] // 接收机位置
             }
 
         Returns:
@@ -101,15 +122,18 @@ class messageGenerator:
                     ldpc_mat_2 = args["ldpc_mat_2"]
                     iono_corr = args["iono_corr"]
                     frame_order = args["frame_order"]
-                    return self._gen_b1c_frame( curr_time, total_time, ldpc_mat_1, ldpc_mat_2, iono_corr, frame_order)
+                    pos = args["pos"]
+                    return self._gen_b1c_frame( curr_time, total_time, pos, ldpc_mat_1, ldpc_mat_2, iono_corr, frame_order)
                 case SIGNAL_TYPE.B1I_SIGNAL:
                     iono_corr = args["iono_corr"]
                     almanac = args["almanac"]
-                    return self._gen_b1i_frame(curr_time, total_time, iono_corr, almanac)
+                    pos = args["pos"]
+                    return self._gen_b1i_frame(curr_time, total_time, pos, iono_corr, almanac)
                 case SIGNAL_TYPE.B3I_SIGNAL:
                     iono_corr = args["iono_corr"]
                     almanac = args["almanac"]
-                    return self._gen_b1i_frame(curr_time, total_time, iono_corr, almanac)
+                    pos = args["pos"]
+                    return self._gen_b1i_frame(curr_time, total_time, pos, iono_corr, almanac)
                 case SIGNAL_TYPE.B2A_SIGNAL:
                     logging.error("Not Implemented yet :(")
                     return {}
@@ -124,11 +148,14 @@ class messageGenerator:
                 'ldpc_mat_1': ldpc_loader, // LDPC(100, 200)矩阵
                 'ldpc_mat_2': ldpc_loader, // LDPC(44,88)矩阵
                 'iono_corr': list, // BDGIM模型参数
-                'frame_order': List[int] // 不同帧的顺序
+                'frame_order': List[int], // 不同帧的顺序
+                'pos': Tuple[float, float, float] // 接收机位置
             }
             For B1I/B3I
             {
                 'iono_corr': dict, // Klobuchar模型参数
-                'almanac': dict // 历书数据
+                'almanac': dict, // 历书数据
+                'pos': Tuple[float, float, float] // 接收机位置
             }""")
+            raise e
             return {}

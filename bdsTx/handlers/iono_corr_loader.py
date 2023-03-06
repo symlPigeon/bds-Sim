@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 14:36:47
-LastEditTime: 2023-02-16 14:38:08
+LastEditTime: 2023-03-06 10:24:54
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 读取电离层修正数据
 FilePath: /bds-Sim/bdsTx/handlers/iono_corr_loader.py
@@ -36,5 +36,5 @@ class ionoCorrReader:
     def get_klobuchar(self) -> dict:
         return self._iono_corr["klobuchar"]["a"]
     
-    def get_bdgim(self) -> list:
-        return self._iono_corr["bdgim"]["a"]["alpha"]
+    def get_bdgim(self) -> dict:
+        return self._iono_corr["bdgim"]["a"]

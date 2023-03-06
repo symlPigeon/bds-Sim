@@ -12,10 +12,11 @@ import math
 from typing import Annotated, List, Tuple
 
 import numpy as np
-from constants import *
-from coordinate_system import ecef2lla
-from time_system import mjd2mdj_odd_hour, utc2mjd
-from visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
+
+from .constants import *
+from .coordinate_system import ecef2lla
+from .time_system import mjd2mdj_odd_hour, utc2mjd
+from .visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
 
 _N_I = [0, 1, 1, 1, 2, 2, 2, 2, 2]
 _M_i = [0, 0, 1, -1, 0, 1, -1, 2, -2]

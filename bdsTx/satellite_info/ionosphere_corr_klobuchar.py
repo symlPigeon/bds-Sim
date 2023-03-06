@@ -11,10 +11,11 @@ FilePath: /bds-Sim/bdsTx/satellite_info/ionosphere_corr_klobuchar.py
 from typing import List, Tuple
 
 import numpy as np
-from constants import *
-from coordinate_system import ecef2lla
-from time_system import utc2bds
-from visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
+
+from .constants import *
+from .coordinate_system import ecef2lla
+from .time_system import utc2bds
+from .visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
 
 
 def get_iono_pierce_point(

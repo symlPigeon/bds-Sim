@@ -17,7 +17,7 @@ class pseudoRangeGenerator:
     def __init__(
         self,
         ephemeris: dict,
-        iono_data: dict,
+        iono_data: dict | list,
         carrier_freq: float,
         pos: Tuple[float, float, float],
         curr_time: float,
@@ -26,7 +26,7 @@ class pseudoRangeGenerator:
         """初始化伪距计算器
 
         Args:
-            ephemeris (dict): 星历数据
+            ephemeris (dict): 星历数据，针对当前卫星
             iono_data (dict): 电离层模型
             carrier_freq (float): 载波频率
             pos (Tuple[float, float, float]): 接收机位置，should be llh
