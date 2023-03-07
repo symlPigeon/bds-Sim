@@ -1,76 +1,111 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
- * @Date: 2023-02-07 11:37:52
- * @LastEditTime: 2023-02-09 16:15:09
+ * @Date: 2023-03-07 12:18:52
+ * @LastEditTime: 2023-03-07 16:07:26
  * @LastEditors: symlPigeon 2163953074@qq.com
- * @Description: Definition for dataSource
+ * @Description: Data Source
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.hpp
  */
 
 #ifndef SIGNALPROCESS_UTIL_DATASOURCE_HPP_
 #define SIGNALPROCESS_UTIL_DATASOURCE_HPP_
 
-#include <gnuradio/sync_block.h>
-#include <gnuradio/attributes.h>
-#include <memory>
+#include <string>
 #include <vector>
 
 namespace signalProcess {
-class dataSource : virtual public gr::sync_block {
+
+/**
+ * @brief Data Source
+ * 
+ */
+class dataSource {
+private:
+    std::string         raw_data;
+    std::vector<int>    data;
+    std::vector<double> delay;
+    std::vector<double> refDelay;
+    std::vector<double> elevation;
+    int                 dataIdx;
+    int                 delayIdx;
+    int                 refDelayIdx;
+    int                 elevationIdx;
+
 public:
-    typedef std::shared_ptr<dataSource> sptr;
-    static sptr                         make(const std::string& data,
-                                             const int          bits_per_symbol,
-                                             const bool         is_repeat,
-                                             const int          init_phase);
+    /**
+    * @brief Construct a new dataSource object
+    * 
+    * @param raw_data 原始帧数据
+    * @param delay 各个帧对应的延迟
+    * @param refDelay 各个帧对应的参考延迟
+    * @param bitwidth 原始帧数据的比特位宽，对于hex数据，bitwidth=4
+    */
+    dataSource(const std::string&         raw_data,
+               const std::vector<double>& delay,
+               const std::vector<double>& refDelay,
+               const std::vector<double>& elevation,
+               const int                  bitwidth);
+    ~dataSource(){};
+
+    /**
+     * @brief Get the Data bit at idx
+     * 
+     * @param idx 
+     * @return int 
+     */
+    int getData(const int idx) const;
+
+    /**
+     * @brief Get the Delay object
+     * 
+     * @param update 
+     * @return double 
+     */
+    double getDelay(bool update = true);
+
+    /**
+     * @brief Get the reference delay of current frame
+     * 
+     * @param update
+     * @return double 
+     */
+    double getRefDelay(bool update = true);
+
+    /**
+     * @brief Get the next data bit.
+     * 
+     * @param update 
+     * @return int 
+     */
+    int getData(bool update = true);
+
+    /**
+     * @brief Get the elevation of current frame
+     * 
+     * @param update 
+     * @return double 
+     */
+    double getElevation(bool update = true);
 };
 
 class hexDataSource : public dataSource {
 public:
-    typedef std::shared_ptr<hexDataSource> sptr;
-    static sptr
-    make(const std::string& data, const bool is_repeat, const int init_phase);
+    hexDataSource(const std::string&         raw_data,
+                  const std::vector<double>& delay,
+                  const std::vector<double>& refDelay,
+                  const std::vector<double>& elevation)
+        : dataSource(raw_data, delay, refDelay, elevation, 4){};
+    ~hexDataSource(){};
 };
 
 class octDataSource : public dataSource {
 public:
-    typedef std::shared_ptr<octDataSource> sptr;
-    static sptr
-    make(const std::string& data, const bool is_repeat, const int init_phase);
-};
-
-class dataSource_impl : public dataSource {
-private:
-    std::vector<float> data;
-    const int          bits_per_symbol;
-    const bool         is_repeat;
-    unsigned int       idx;
-    const unsigned int data_size;
-
-public:
-    dataSource_impl(const std::string& data,
-                    const int          bits_per_symbol,
-                    const bool         is_repeat,
-                    const int          init_phase);
-    ~dataSource_impl(){};
-
-    int work(int                        noutput_items,
-             gr_vector_const_void_star& input_items,
-             gr_vector_void_star&       output_items);
-};
-
-class hexDataSource_impl : public dataSource_impl, public hexDataSource {
-public:
-    hexDataSource_impl(const std::string& data,
-                       const bool         is_repeat,
-                       const int          init_phase = 0);
-};
-
-class octDataSource_impl : public dataSource_impl, public octDataSource {
-public:
-    octDataSource_impl(const std::string& data,
-                       const bool         is_repeat,
-                       const int          init_phase = 0);
+    octDataSource(const std::string&         raw_data,
+                  const std::vector<double>& delay,
+                  const std::vector<double>& refDelay,
+                  const std::vector<double>& elevation)
+        : dataSource(raw_data, delay, refDelay, elevation, 3){};
+    ~octDataSource(){};
 };
 
 } // namespace signalProcess

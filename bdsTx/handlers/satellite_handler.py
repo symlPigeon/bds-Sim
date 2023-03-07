@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-16 14:36:05
-LastEditTime: 2023-03-06 12:42:00
+LastEditTime: 2023-03-07 15:08:36
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 输出卫星信息和数据帧
 FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
@@ -271,7 +271,9 @@ class satelliteHandler:
                 "data": msgs[prn]["data"],
                 "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type),
                 "type": {1: "GEO", 2:"IGSO", 3:"MEO"}[detect_sat_type(prn)],
-                "delay": msgs[prn]["delay"]
+                "delay": msgs[prn]["delay"],
+                "refDelay": msgs[prn]["refDelay"],
+                "elevation": msgs[prn]["elevation"],
             }
             datas.append(data)
         return datas

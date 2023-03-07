@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-09 12:59:01
- * @LastEditTime: 2023-02-16 15:29:15
+ * @LastEditTime: 2023-03-07 15:32:24
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: 用于存储卫星信息、解析bdsTx模块传输的数据
  * @FilePath: /bds-Sim/signalProcess/util/satInfo.hpp
@@ -22,18 +22,22 @@ enum satType { GEO, MEO, IGSO };
 
 class b1ISatInfo {
 private:
-    std::string       data;
-    std::string       prn;
-    satType           type;
-    int               delay;
+    std::string         data;
+    std::string         prn;
+    satType             type;
+    std::vector<double> delay;
+    std::vector<double> refDealy;
+    std::vector<double> elevation;
 
 public:
     b1ISatInfo(const json& raw_data, const int id);
     ~b1ISatInfo(){};
-    std::string getPrn() const;
-    satType     getType() const;
-    std::string getData() const;
-    int         getDelay() const;
+    std::string         getPrn() const;
+    satType             getType() const;
+    std::string         getData() const;
+    std::vector<double> getDelay() const;
+    std::vector<double> getRefDelay() const;
+    std::vector<double> getElevation() const;
 };
 
 class b1IFileSource {

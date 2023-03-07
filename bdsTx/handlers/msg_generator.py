@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 13:57:17
-LastEditTime: 2023-03-07 11:49:52
+LastEditTime: 2023-03-07 15:14:51
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 生成导航信息
 FilePath: /bds-Sim/bdsTx/handlers/msg_generator.py
@@ -17,6 +17,10 @@ from bdsTx.handlers.pseudorange_calc import pseudoRangeGenerator  # 在MSG生成
 from bdsTx.satellite_info.broadcast_type import *
 from bdsTx.satellite_info.constants import *
 from bdsTx.satellite_info.detect_sat_type import *
+from bdsTx.satellite_info.position_calculate_by_ephemeris import (
+    get_stellite_position_by_ephemeris,
+)
+from bdsTx.satellite_info.visible_satellite_searcher import calc_elevation_angle
 
 
 class messageGenerator:
@@ -50,13 +54,19 @@ class messageGenerator:
             generator = b1cFrame(prn, eph, iono_corr, frame_order, ldpc_mat_1.get(), ldpc_mat_2.get())
             ans[prn] = {
                 "data": "",
-                "delay": []
+                "delay": [],
+                "refDelay": [],
+                "elevation": [],
             }
             for j in range(int(total_time / 18)):
                 # 18s一个帧
                 ans[prn]["data"] += generator.make_hexframe(curr_time + 18 * j)
-                prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 18 * j, model="bdgim")
+            for j in range(int(total_time * 10)): # Sample per 0.1 seconds
+                prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 0.1 * j, model="bdgim")
                 ans[prn]["delay"].append(prange.get_pseudo_range())
+                ans[prn]["refDelay"].append(prange.get_ref_pseudo_range())
+                satellite_pos = get_stellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
+                ans[prn]["elevation"].append(calc_elevation_angle(rx_pos=pos, sat_pos=satellite_pos))
         return ans
     
     def _gen_b1i_frame(self, curr_time: float, total_time: float, pos: Tuple[float, float, float], iono_corr: dict, almanac: dict) -> dict:
@@ -74,16 +84,22 @@ class messageGenerator:
                 selected += 1
                 ans[prn] = {
                     "data": "",
-                    "delay": []
+                    "delay": [],
+                    "refDelay": [],
+                    "elevation": [],
                 }
                 generator = b1iFrame(prn, eph, iono_corr, almanac)
                 for j in range(int(total_time / 30)):
                     # 30s一个帧
                     ans[prn]["data"] += generator.make_hexframe(curr_time + 30 * j)
-                # FIXME: B3I carrier frequency is different, which will cause a different pseudorange
-                # Creating a new method for B3I!
-                    prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 30 * j, model="klobuchar")
+                for j in range(int(total_time * 10)): # Sample pesudo range every 0.1s
+                    # FIXME: B3I carrier frequency is different, which will cause a different pseudorange
+                    # Creating a new method for B3I!
+                    prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 0.1 * j, model="klobuchar")
                     ans[prn]["delay"].append(prange.get_pseudo_range())
+                    ans[prn]["refDelay"].append(prange.get_ref_pseudo_range())
+                    satellite_pos = get_stellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
+                    ans[prn]["elevation"].append(calc_elevation_angle(rx_pos=pos, sat_pos=satellite_pos))
                 cnt += 1
         except IndexError as e:
             logging.error("Ooops! It seems that there're not enough MEO and IGSO satellites.")

@@ -54,3 +54,18 @@ class pseudoRangeGenerator:
             self._curr_time,
             self._model,
         )
+
+    def get_ref_pseudo_range(self) -> float:
+        """计算参考伪距
+
+        Returns:
+            float: 伪距
+        """
+        return get_pseudo_range(
+            self._eph,
+            self._iono_data,
+            self._carrier_freq,
+            (0, 0, 0,),
+            self._curr_time,
+            self._model
+        )
