@@ -1,85 +1,56 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
- * @Date: 2023-03-07 12:19:03
- * @LastEditTime: 2023-03-07 16:09:36
+ * @Date: 2023-03-07 22:55:30
+ * @LastEditTime: 2023-03-07 23:10:22
  * @LastEditors: symlPigeon 2163953074@qq.com
- * @Description: Data Source Impl
+ * @Description: 
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.cpp
  */
 
 #include "dataSource.hpp"
-#include <vector>
 
 namespace signalProcess {
 
-dataSource::dataSource(const std::string&         raw_data,
-                       const std::vector<double>& delay,
-                       const std::vector<double>& refDelay,
-                       const std::vector<double>& elevation,
-                       const int                  bitwidth)
-    : raw_data(raw_data),
-      delay(delay),
-      refDelay(refDelay),
-      elevation(elevation),
-      dataIdx(0),
-      delayIdx(0),
-      refDelayIdx(0),
-      elevationIdx(0) {
-    for (auto& c : raw_data) {
-        // convert c to int
-        auto tmp = c - '0';
-        // from MSB to LSB
-        for (int i = bitwidth - 1; i >= 0; i--) {
-            data.push_back((tmp >> i) & 0x1);
+bDataSource::bDataSource(const std::string& data, const int bitwidth)
+    : data(data),
+      dataLength(static_cast<int>(bitwidth * data.length())),
+      dataIdx(0) {
+    for (auto& i : data) {
+        for (int j = 0; j < bitwidth; j++) {
+            // MSB
+            binData.push_back((i >> (bitwidth - j - 1)) & 0x01);
         }
     }
 }
 
-int dataSource::getData(int idx) const {
-    return data[idx];
+std::vector<int> bDataSource::getData() const {
+    return this->binData;
 }
 
-double dataSource::getDelay(bool update) {
-    double val = delay[delayIdx];
-    if (update) {
-        delayIdx++;
-        if (delayIdx >= delay.size()) {
-            delayIdx = 0;
-        }
-    }
+int bDataSource::getLength() const {
+    return this->dataLength;
+}
+
+int bDataSource::getNextBit() {
+    int val       = this->binData[this->dataIdx];
+    this->dataIdx = (this->dataIdx + 1) % this->dataLength;
     return val;
 }
 
-double dataSource::getRefDelay(bool update) {
-    double val = refDelay[refDelayIdx];
-    if (update) {
-        refDelayIdx++;
-        if (refDelayIdx >= refDelay.size()) {
-            refDelayIdx = 0;
-        }
-    }
-    return val;
+fDataSource::fDataSource(const std::vector<double>& data)
+    : data(data), dataLength(static_cast<int>(data.size())), dataIdx(0) {}
+
+std::vector<double> fDataSource::getData() const {
+    return this->data;
 }
 
-double dataSource::getElevation(bool update) {
-    double val = elevation[elevationIdx];
-    if (update) {
-        elevationIdx++;
-        if (elevationIdx >= elevation.size()) {
-            elevationIdx = 0;
-        }
-    }
-    return val;
+int fDataSource::getLength() const {
+    return this->dataLength;
 }
 
-int dataSource::getData(bool update) {
-    int val = data[dataIdx];
-    if (update) {
-        dataIdx++;
-        if (dataIdx >= data.size()) {
-            dataIdx = 0;
-        }
-    }
+double fDataSource::getNextData() {
+    double val    = this->data[this->dataIdx];
+    this->dataIdx = (this->dataIdx + 1) % this->dataLength;
     return val;
 }
 

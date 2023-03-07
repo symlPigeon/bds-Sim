@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-16 14:36:05
-LastEditTime: 2023-03-07 15:08:36
+LastEditTime: 2023-03-07 23:11:20
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 输出卫星信息和数据帧
 FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
@@ -151,6 +151,17 @@ class satelliteHandler:
         self._ldpc_paths = ldpc_path
         return self
     
+    def load_prn(self) -> satelliteHandler:
+        """初始化测距码读取类
+
+        Returns:
+            satelliteHandler: _description_
+        """
+        if self._prn_path == "":
+            raise ValueError("PRN file path not set")
+        self._prn_reader = rangingCodeReader(self._prn_path)
+        return self
+    
     def load_ldpc_mats(self) -> satelliteHandler:
         """加载LDPC矩阵，B1C/B2a需要
 
@@ -269,7 +280,7 @@ class satelliteHandler:
         for prn in msgs:
             data = {
                 "data": msgs[prn]["data"],
-                "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type),
+                "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type)["prn"],
                 "type": {1: "GEO", 2:"IGSO", 3:"MEO"}[detect_sat_type(prn)],
                 "delay": msgs[prn]["delay"],
                 "refDelay": msgs[prn]["refDelay"],
@@ -289,7 +300,7 @@ if __name__ == "__main__":
     handler.set_iono_path("../satellite_info/ionosphere/iono_corr.json")
     handler.set_prn_path("../coding/ranging_code/")
     handler.set_signal_type(SIGNAL_TYPE.B1I_SIGNAL)
-    handler.load_alc().load_eph().load_iono_corr().find_satellite().init_msg_gen()
+    handler.load_alc().load_eph().load_iono_corr().load_prn().find_satellite().init_msg_gen()
     msg = handler.generate()
     with open("msg.json", "w") as f:
         f.write(json.dumps(msg, indent=4))

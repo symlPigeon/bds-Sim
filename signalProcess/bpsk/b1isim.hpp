@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-26 10:55:10
- * @LastEditTime: 2023-03-07 16:12:12
+ * @LastEditTime: 2023-03-07 23:14:18
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1i/B3i BPSK Simulation
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1isim.hpp
@@ -47,10 +47,15 @@ namespace signalProcess {
 
 class b1iChannel {
 private:
-    signalProcess::b1ISatInfo sat_info;
-    signalProcess::dataSource data_src;
-    unsigned int              carr_phase;
-    int                       carr_phasestep;
+    signalProcess::b1ISatInfo  satInfo;
+    signalProcess::bDataSource frameData;
+    signalProcess::bDataSource rangingCode;
+    signalProcess::bDataSource nhCode;
+    signalProcess::fDataSource delay;
+    signalProcess::fDataSource refDelay;
+    signalProcess::fDataSource elevation;
+    unsigned int               carrPhase;
+    int                        carrPhaseStep;
 
 public:
     /**
@@ -59,8 +64,7 @@ public:
      * @param sat_info 
      * @param data_src 
      */
-    b1iChannel(const signalProcess::b1ISatInfo& sat_info,
-               signalProcess::dataSource&       data_src);
+    b1iChannel(const signalProcess::b1ISatInfo& sat_info);
 };
 } // namespace signalProcess
 
