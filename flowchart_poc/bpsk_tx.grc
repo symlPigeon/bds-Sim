@@ -64,7 +64,7 @@ blocks:
     start: '0'
     step: '0.01'
     stop: '1'
-    value: '0.3'
+    value: '0.7'
     widget: counter_slider
   states:
     bus_sink: false
@@ -97,13 +97,13 @@ blocks:
     start: '0'
     step: '0.01'
     stop: '1'
-    value: '0.3'
+    value: '0.8'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 168.0]
+    coordinate: [1024, 172.0]
     rotation: 0
     state: true
 - name: blocks_add_const_vxx_0
@@ -121,7 +121,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1880, 864.0]
+    coordinate: [1624, 904.0]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0
@@ -139,7 +139,25 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2040, 868.0]
+    coordinate: [1784, 908.0]
+    rotation: 0
+    state: disabled
+- name: blocks_file_sink_1
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /home/syml/Temp/1.bin
+    type: complex
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1792, 660.0]
     rotation: 0
     state: disabled
 - name: blocks_keep_one_in_n_0
@@ -157,7 +175,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1552, 800.0]
+    coordinate: [1296, 840.0]
     rotation: 0
     state: disabled
 - name: blocks_repack_bits_bb_0
@@ -179,7 +197,7 @@ blocks:
     bus_structure: null
     coordinate: [440, 376.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_repack_bits_bb_0_0
   id: blocks_repack_bits_bb
   parameters:
@@ -197,9 +215,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [440, 680.0]
+    coordinate: [464, 664.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_repack_bits_bb_1
   id: blocks_repack_bits_bb
   parameters:
@@ -217,7 +235,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1712, 792.0]
+    coordinate: [1456, 832.0]
     rotation: 0
     state: disabled
 - name: blocks_repeat_0
@@ -237,7 +255,7 @@ blocks:
     bus_structure: null
     coordinate: [688, 376.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_repeat_0_0
   id: blocks_repeat
   parameters:
@@ -255,7 +273,7 @@ blocks:
     bus_structure: null
     coordinate: [688, 520.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_repeat_0_0_0
   id: blocks_repeat
   parameters:
@@ -271,9 +289,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [696, 648.0]
+    coordinate: [688, 672.0]
     rotation: 0
     state: true
+- name: blocks_throttle_0
+  id: blocks_throttle
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1472, 648.0]
+    rotation: 0
+    state: disabled
 - name: blocks_vector_source_x_0
   id: blocks_vector_source_x
   parameters:
@@ -293,7 +330,7 @@ blocks:
     bus_structure: null
     coordinate: [432, 492.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_vector_source_x_1
   id: blocks_vector_source_x
   parameters:
@@ -313,27 +350,27 @@ blocks:
     bus_structure: null
     coordinate: [168, 356.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_vector_source_x_2
   id: blocks_vector_source_x
   parameters:
     affinity: ''
     alias: ''
-    comment: ''
+    comment: PRN Ranging Code
     maxoutbuf: '0'
     minoutbuf: '0'
     repeat: 'True'
     tags: '[]'
     type: byte
-    vector: vecsrc.oct2vec("5325507244542270142226375354213320511323745505442460133153405016046624463425074756020554104054051450307202074614075067115565633345175550603076032763773101753344360774273121350240675545451750466635155052451217647220625647117335141326330747663261300054541275165213041015107454744332776702277341022332077445137403165553072454046216343377033526600647672256634377420626736764241147712444260570055745534753515333514152225606705137540167215736160164621714703104176015155635101476515075137504272440630414626270316547642730756761275663404162220601601063014150523062067323466712774565146557675231355210136220050314472311731246131053636363612226407451650022267000442101724730742364636607761326")
+    vector: vecsrc.oct2vec("2453262336254172473670350343052662633043130521546244116743007370645236722016774202554671002153045021211626332041007503114172334714336235472041422002450372543607756632745116244443460047646571640675667750626752703632060316721110432761426746473125175736556530545007450667641340066113653063257613520421334755606336105134431714361730554610306407537541416207635463606565725774266377400251327155407336605224504703223611673024151552523537441554740310554204417767407675710563174077547340315112666474114643335754121730004155456374051203426313713373056431260422670552325120732540226660016030044272154667355513641506450767441110247373176206345466214367000011122366745471553472045152552424463514")
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [168, 668.0]
+    coordinate: [104, 580.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_vector_source_x_3
   id: blocks_vector_source_x
   parameters:
@@ -353,7 +390,7 @@ blocks:
     bus_structure: null
     coordinate: [656, 248.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: blocks_xor_xx_1
   id: blocks_xor_xx
   parameters:
@@ -384,7 +421,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 776.0]
+    coordinate: [1056, 816.0]
     rotation: 0
     state: disabled
 - name: digital_constellation_encoder_bc_0
@@ -418,7 +455,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 760.0]
+    coordinate: [792, 800.0]
     rotation: 0
     state: disabled
 - name: qtgui_sink_x_0
@@ -447,7 +484,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1880, 524.0]
+    coordinate: [1896, 516.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0_0
@@ -476,7 +513,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1960, 652.0]
+    coordinate: [1744, 780.0]
     rotation: 0
     state: disabled
 - name: uhd_usrp_sink_0
@@ -1189,7 +1226,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 784.0]
+    coordinate: [360, 824.0]
     rotation: 0
     state: disabled
 - name: vecsrc
@@ -1218,6 +1255,7 @@ connections:
 - [blocks_repeat_0, '0', blocks_xor_xx_1, '0']
 - [blocks_repeat_0_0, '0', blocks_xor_xx_1, '1']
 - [blocks_repeat_0_0_0, '0', blocks_xor_xx_1, '2']
+- [blocks_throttle_0, '0', blocks_file_sink_1, '0']
 - [blocks_vector_source_x_0, '0', blocks_repeat_0_0, '0']
 - [blocks_vector_source_x_1, '0', blocks_repack_bits_bb_0, '0']
 - [blocks_vector_source_x_2, '0', blocks_repack_bits_bb_0_0, '0']
@@ -1225,6 +1263,7 @@ connections:
 - [blocks_vector_source_x_3, '0', blocks_xor_xx_1, '1']
 - [blocks_xor_xx_1, '0', digital_constellation_encoder_bc_0, '0']
 - [digital_constellation_decoder_cb_0, '0', blocks_keep_one_in_n_0, '0']
+- [digital_constellation_encoder_bc_0, '0', blocks_throttle_0, '0']
 - [digital_constellation_encoder_bc_0, '0', qtgui_sink_x_0, '0']
 - [digital_constellation_encoder_bc_0, '0', uhd_usrp_sink_0, '0']
 - [digital_costas_loop_cc_0, '0', digital_constellation_decoder_cb_0, '0']

@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 13:57:17
-LastEditTime: 2023-03-06 12:49:44
+LastEditTime: 2023-03-07 11:49:52
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 生成导航信息
 FilePath: /bds-Sim/bdsTx/handlers/msg_generator.py
@@ -50,13 +50,13 @@ class messageGenerator:
             generator = b1cFrame(prn, eph, iono_corr, frame_order, ldpc_mat_1.get(), ldpc_mat_2.get())
             ans[prn] = {
                 "data": "",
-                "delay": 0
+                "delay": []
             }
             for j in range(int(total_time / 18)):
                 # 18s一个帧
                 ans[prn]["data"] += generator.make_hexframe(curr_time + 18 * j)
-            prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="bdgim")
-            ans[prn]["delay"] = prange.get_pseudo_range()
+                prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 18 * j, model="bdgim")
+                ans[prn]["delay"].append(prange.get_pseudo_range())
         return ans
     
     def _gen_b1i_frame(self, curr_time: float, total_time: float, pos: Tuple[float, float, float], iono_corr: dict, almanac: dict) -> dict:
@@ -74,7 +74,7 @@ class messageGenerator:
                 selected += 1
                 ans[prn] = {
                     "data": "",
-                    "delay": 0
+                    "delay": []
                 }
                 generator = b1iFrame(prn, eph, iono_corr, almanac)
                 for j in range(int(total_time / 30)):
@@ -82,8 +82,8 @@ class messageGenerator:
                     ans[prn]["data"] += generator.make_hexframe(curr_time + 30 * j)
                 # FIXME: B3I carrier frequency is different, which will cause a different pseudorange
                 # Creating a new method for B3I!
-                prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="klobuchar")
-                ans[prn]["delay"] = prange.get_pseudo_range()
+                    prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 30 * j, model="klobuchar")
+                    ans[prn]["delay"].append(prange.get_pseudo_range())
                 cnt += 1
         except IndexError as e:
             logging.error("Ooops! It seems that there're not enough MEO and IGSO satellites.")
