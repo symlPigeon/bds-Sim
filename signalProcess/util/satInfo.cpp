@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-09 12:59:15
- * @LastEditTime: 2023-03-07 15:35:49
+ * @LastEditTime: 2023-03-08 20:38:00
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: 用于存储卫星信息、解析bdsTx模块传输的数据  
  * @FilePath: /bds-Sim/signalProcess/util/satInfo.cpp
@@ -10,21 +10,23 @@
 #include "satInfo.hpp"
 #include <exception>
 #include <fstream>
+#include <iterator>
 #include <stdexcept>
+#include <iostream>
+
 using json = nlohmann::json;
 
 namespace signalProcess {
 
-b1ISatInfo::b1ISatInfo(const json& raw_data, const int id) {
-    this->data  = raw_data[id]["data"];
-    this->prn   = raw_data[id]["prn"];
+b1ISatInfo::b1ISatInfo(const json& raw_data) {
+    this->data  = raw_data["data"];
+    this->prn   = raw_data["prn"];
     this->delay = std::vector<double>();
-    for (auto& i : raw_data[id]["delay"]) { this->delay.push_back(i); }
-    this->refDealy = std::vector<double>();
-    for (auto& i : raw_data[id]["refDelay"]) { this->refDealy.push_back(i); }
+    for (auto& i : raw_data["delay"]) { this->delay.push_back(i); }
+    this->refDealy  = raw_data["refDelay"];
     this->elevation = std::vector<double>();
-    for (auto& i : raw_data[id]["elevation"]) { this->elevation.push_back(i); }
-    switch ((int)raw_data[id]["type"]) {
+    for (auto& i : raw_data["elevation"]) { this->elevation.push_back(i); }
+    switch ((int)raw_data["type"]) {
     case 1: this->type = GEO; break;
     case 2: this->type = IGSO; break;
     case 3: this->type = MEO; break;
@@ -48,7 +50,7 @@ std::vector<double> b1ISatInfo::getDelay() const {
     return this->delay;
 }
 
-std::vector<double> b1ISatInfo::getRefDelay() const {
+double b1ISatInfo::getRefDelay() const {
     return this->refDealy;
 }
 
@@ -58,11 +60,15 @@ std::vector<double> b1ISatInfo::getElevation() const {
 
 b1IFileSource::b1IFileSource(const std::string& filepath) {
     std::ifstream f(filepath);
-    this->sat_sata = json::parse(f);
+    this->sat_data = json::parse(f);
 }
 
 b1ISatInfo b1IFileSource::getSatInfo(const int idx) {
-    return b1ISatInfo(this->sat_sata[idx], idx);
+    return b1ISatInfo(this->sat_data[idx]);
+}
+
+unsigned int b1IFileSource::getSatCnt() const {
+    return this->sat_data.size();
 }
 
 } // namespace signalProcess

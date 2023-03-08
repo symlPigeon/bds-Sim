@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-03-07 22:55:22
- * @LastEditTime: 2023-03-07 23:09:49
+ * @LastEditTime: 2023-03-08 16:04:50
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: 
  * @FilePath: /bds-Sim/signalProcess/util/dataSource.hpp
@@ -28,10 +28,13 @@ private:
 
 public:
     bDataSource(const std::string& data, const int bitwidth);
+    bDataSource(){};
     ~bDataSource(){};
-    std::vector<int> getData() const;
     int              getLength() const;
-    int              getNextBit();
+    int              getBitAtIdx(const int idx) const;
+    int              getBit();
+    void             next();
+    void             setIdx(const int idx);
 };
 
 class fDataSource {
@@ -42,10 +45,13 @@ private:
 
 public:
     fDataSource(const std::vector<double>& data);
+    fDataSource(){};
     ~fDataSource(){};
-    std::vector<double> getData() const;
     int                 getLength() const;
-    double              getNextData();
+    double              getDataAtIdx(const int idx) const;
+    double              getData();
+    void                next();
+    void                setIdx(const int idx);
 };
 
 } // namespace signalProcess
