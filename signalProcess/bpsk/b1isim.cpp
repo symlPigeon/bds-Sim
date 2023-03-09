@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-26 10:54:48
- * @LastEditTime: 2023-03-08 18:23:58
+ * @LastEditTime: 2023-03-09 13:32:32
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1I/B3I BPSK Simulation
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1isim.cpp
@@ -29,8 +29,8 @@ b1iChannel::b1iChannel(const signalProcess::b1ISatInfo& sat_info)
     double init_rref  = refDelay;
     double init_phase = (init_rref * 2 - init_r) * B1I_CARR_FREQ;
     init_phase        = init_phase - floor(init_phase);
-    carrPhase         = static_cast<unsigned int>(init_phase * 512 * 65536);
-    prevDelay         = init_r; //< just update the prev_delay.
+    this->carrPhase   = static_cast<unsigned int>(init_phase * 512 * 65536);
+    this->prevDelay   = init_r; //< just update the prev_delay.
 }
 
 void b1iChannel::recalculateCodePhase() {
@@ -51,8 +51,10 @@ void b1iChannel::recalculateCodePhase() {
     this->codeFreq = B1I_RANGING_CODE_RATE + carrFreq * CARR_PERIOD_PER_CHIP;
     // calculate the continue time
     // plus 6 to make sure the ms is positive
-    double ms       = (iterTimes * SIM_UPDATE_STEP + 6 - curr_delay) * 1000;
-    int    ims      = static_cast<int>(ms);
+    double ms  = (iterTimes * SIM_UPDATE_STEP + 6 - this->prevDelay) * 1000;
+    int    ims = static_cast<int>(ms);
+    // In current 1 ms, we need to transmit the PRN code.
+    // So we need to start where we left off.
     this->codePhase = (ms - ims) * B1I_RANGING_CODE_LEN;
 
     // Calculate the index of frame.
@@ -78,7 +80,9 @@ void b1iChannel::updateChannelStatus() {
     this->recalculateCodePhase();
     this->carrPhaseStep =
         static_cast<int>(std::round(512 * 65536 * this->carrFreq * this->delt));
+
     // Calculate the path loss. We use pesudo range instead of real range, just for convenience.
+    // which should not cause too much bias.
     double path_loss = 20200000.0 / (this->prevDelay * LIGHT_SPEED);
     double elevation = this->elevation.getData();
     this->elevation.next();
@@ -90,7 +94,7 @@ void b1iChannel::updateChannelStatus() {
 
 std::tuple<int, int> b1iChannel::getNextData() {
     if (this->iterIdx == ITER_LENGTH) {
-        this->updateChannelStatus();
+        this->updateChannelStatus(); // update channel status every ITER_LENGTH
     }
     int iTable = (int)(this->carrPhase >> 16) & 0x1ff;
     // get next ranging code bit
@@ -111,13 +115,13 @@ std::tuple<int, int> b1iChannel::getNextData() {
         this->codePhase -= B1I_RANGING_CODE_LEN;
         // this ranging code period is over, goto next nhCode bit.
         this->nhBitIdx++;
-        if (this->nhBitIdx == B1I_NH_CODE_LEN) {
+        if (this->nhBitIdx >= B1I_NH_CODE_LEN) {
             // all the nh code bits are over, goto next frame data bit.
             this->nhBitIdx = 0;
             this->frameData.next();
         }
-        this->carrPhase += this->carrPhaseStep;
     }
+    this->carrPhase += this->carrPhaseStep;
     this->iterIdx++;
     return std::make_tuple(ip, qp);
 }

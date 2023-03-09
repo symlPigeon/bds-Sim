@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-26 10:55:10
- * @LastEditTime: 2023-03-08 21:42:09
+ * @LastEditTime: 2023-03-09 12:21:59
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1i/B3i BPSK Simulation
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1isim.hpp
@@ -44,8 +44,8 @@ namespace signalProcess {
 #define MAX_CHANNEL_NUM 4
 #define SIMULATION_TIME 120
 #define SIM_UPDATE_STEP 0.1 //< Simulation Update Step for pesudo range
-#define SAMPLE_FREQ     2046000 //< Sample Frequency, 2.046e6
-#define ITER_LENGTH     204600  // 2046000 / 10
+#define SAMPLE_FREQ     4092000 //< Sample Frequency, 2.046e6
+#define ITER_LENGTH     409200  // 2046000 / 10
 
 // -------------------
 //  CHANNEL SIMULATION
