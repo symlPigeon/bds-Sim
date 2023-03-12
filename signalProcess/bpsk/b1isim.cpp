@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-26 10:54:48
- * @LastEditTime: 2023-03-09 13:32:32
+ * @LastEditTime: 2023-03-12 11:38:25
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1I/B3I BPSK Simulation
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1isim.cpp
@@ -51,7 +51,7 @@ void b1iChannel::recalculateCodePhase() {
     this->codeFreq = B1I_RANGING_CODE_RATE + carrFreq * CARR_PERIOD_PER_CHIP;
     // calculate the continue time
     // plus 6 to make sure the ms is positive
-    double ms  = (iterTimes * SIM_UPDATE_STEP + 6 - this->prevDelay) * 1000;
+    double ms  = (iterTimes + 6 - this->prevDelay) * 1000;
     int    ims = static_cast<int>(ms);
     // In current 1 ms, we need to transmit the PRN code.
     // So we need to start where we left off.
@@ -93,7 +93,7 @@ void b1iChannel::updateChannelStatus() {
 }
 
 std::tuple<int, int> b1iChannel::getNextData() {
-    if (this->iterIdx == ITER_LENGTH) {
+    if (this->iterIdx >= ITER_LENGTH) {
         this->updateChannelStatus(); // update channel status every ITER_LENGTH
     }
     int iTable = (int)(this->carrPhase >> 16) & 0x1ff;
