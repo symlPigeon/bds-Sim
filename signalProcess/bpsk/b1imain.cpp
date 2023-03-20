@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-03-08 13:54:01
- * @LastEditTime: 2023-03-12 20:15:52
+ * @LastEditTime: 2023-03-14 18:39:17
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1I Main
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1imain.cpp
@@ -19,8 +19,8 @@ int main() {
     std::string   filepath = "./msg.json";
     b1IFileSource fileSource(filepath);
 
-    unsigned int channel_cnt = fileSource.getSatCnt();
-    //unsigned int channel_cnt = 4;
+    //unsigned int channel_cnt = fileSource.getSatCnt();
+    unsigned int channel_cnt = MAX_CHANNEL_NUM;
 
     // init channels
     b1iChannel channels[channel_cnt];

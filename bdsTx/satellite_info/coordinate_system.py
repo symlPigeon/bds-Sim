@@ -13,7 +13,7 @@ from typing import Tuple
 
 import numpy as np
 
-from .constants import *
+from bdsTx.satellite_info.constants import *
 
 
 def lla2ecef(L: float, B: float, H: float) -> Tuple[float, float, float]:

@@ -12,9 +12,9 @@ from typing import Tuple
 
 import numpy as np
 
-from .constants import *
-from .eccentric_anomaly import calculate_eccentric_anomaly
-from .time_system import utc2bds
+from bdsTx.satellite_info.constants import *
+from bdsTx.satellite_info.eccentric_anomaly import calculate_eccentric_anomaly
+from bdsTx.satellite_info.time_system import utc2bds
 
 
 def get_stellite_position_by_ephemeris(
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     from coordinate_system import ecef2lla
 
     filepath = sys.argv[1]
-    test_time = calendar.timegm((2023, 1, 14, 12, 0, 0))
+    test_time = calendar.timegm((2023, 3, 14, 12, 0, 0))
     with open(filepath, "r") as f:
         ephemeris = json.load(f)
     B = []
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     world_map.drawmeridians(np.arange(-180.0, 181.0, 60.0))
     world_map.drawmapboundary(fill_color="aqua")
     x, y = world_map(L, B)
-    plt.scatter(x, y)
+    plt.scatter(x, y, c="green")
     for i in range(len(tags)):
         plt.annotate(
             tags[i],

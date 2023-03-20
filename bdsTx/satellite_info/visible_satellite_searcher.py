@@ -11,9 +11,11 @@ from typing import Dict, Tuple
 
 import numpy as np
 
-from .coordinate_system import ecef2enu, lla2ecef
-from .position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
-from .time_system import get_closest_timestamp
+from bdsTx.satellite_info.coordinate_system import ecef2enu, lla2ecef
+from bdsTx.satellite_info.position_calculate_by_ephemeris import (
+    get_stellite_position_by_ephemeris,
+)
+from bdsTx.satellite_info.time_system import get_closest_timestamp
 
 
 def calc_elevation_angle(
@@ -93,7 +95,7 @@ if __name__ == "__main__":
     eph_file = sys.argv[1]
     with open(eph_file, "r") as f:
         ephemeris = json.load(f)
-    rx_pos = (108, 34, 0)
+    rx_pos = (120, 40, 0)
 
     import calendar
     import time

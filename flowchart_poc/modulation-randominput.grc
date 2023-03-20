@@ -608,7 +608,7 @@ blocks:
     autoscale: 'False'
     average: '1.0'
     axislabels: 'True'
-    bw: samp_rate
+    bw: 20e6
     color1: '"blue"'
     color10: '"dark blue"'
     color2: '"red"'
@@ -622,7 +622,7 @@ blocks:
     comment: ''
     ctrlpanel: 'False'
     fc: '0'
-    fftsize: '1024'
+    fftsize: '32768'
     freqhalf: 'True'
     grid: 'False'
     gui_hint: ''
@@ -703,7 +703,7 @@ blocks:
     comment: ''
     ctrlpanel: 'False'
     fc: '0'
-    fftsize: '1024'
+    fftsize: '4096'
     freqhalf: 'True'
     grid: 'False'
     gui_hint: ''
@@ -751,7 +751,7 @@ blocks:
     bus_structure: null
     coordinate: [1520, 188.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: qtgui_freq_sink_x_0_0_0
   id: qtgui_freq_sink_x
   parameters:
@@ -784,7 +784,7 @@ blocks:
     comment: ''
     ctrlpanel: 'False'
     fc: '0'
-    fftsize: '1024'
+    fftsize: '4096'
     freqhalf: 'True'
     grid: 'False'
     gui_hint: ''
@@ -832,7 +832,7 @@ blocks:
     bus_structure: null
     coordinate: [1520, 420.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: qtgui_freq_sink_x_0_0_0_0
   id: qtgui_freq_sink_x
   parameters:
@@ -865,7 +865,7 @@ blocks:
     comment: ''
     ctrlpanel: 'False'
     fc: '0'
-    fftsize: '1024'
+    fftsize: '4096'
     freqhalf: 'True'
     grid: 'False'
     gui_hint: ''
@@ -913,7 +913,7 @@ blocks:
     bus_structure: null
     coordinate: [1520, 548.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: uhd_usrp_sink_0
   id: uhd_usrp_sink
   parameters:
@@ -1228,4 +1228,4 @@ connections:
 
 metadata:
   file_format: 1
-  grc_version: 3.10.4.0
+  grc_version: 3.10.5.1
