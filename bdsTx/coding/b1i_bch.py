@@ -74,8 +74,8 @@ def bitwise_parallel_to_serial(data1: bytes, data2: bytes, bitlen: int = 15) -> 
     int_data1 = bytes2long(data1)
     int_data2 = bytes2long(data2)
     for idx in range(bitlen):
-        bit1 = (int_data1 & (0x1 << (bitlen - idx - 1))) >> (bitlen - idx - 1)
-        bit2 = (int_data2 & (0x1 << (bitlen - idx - 1))) >> (bitlen - idx - 1)
+        bit1 = ((int_data1 & (0x1 << (bitlen - idx - 1))) >> (bitlen - idx - 1)) & 0b1
+        bit2 = ((int_data2 & (0x1 << (bitlen - idx - 1))) >> (bitlen - idx - 1)) & 0b1
         out_data |= (bit1 << 1) + bit2
         out_data <<= 2
     return out_data.to_bytes(4, "big")
@@ -125,10 +125,11 @@ def b1i_bch_encode_word_1(data: bytes) -> bytes:
 def b1i_bch_encode_bin(data: str) -> str:
     """将二进制字符串形式的帧数据进行BCH编码，以及相关的交织等操作
     这里将数据类型反复转换会带来一定的损失，不过作为弥补最初设计缺陷的措施，只能姑且这样。
+    WARNING: 屎山请勿随意改动
 
     Args:
         data (str): 待编码数据
-    
+
     Returns:
         str: 二进制字符串形式的编码后的字符串
     """
@@ -141,14 +142,23 @@ def b1i_bch_encode_bin(data: str) -> str:
     else:
         raise Exception("Invalid data length")
     bin_enc_data = bin(int.from_bytes(enc_data, "big"))[2:]
+    if len(data) == 26:
+        bin_enc_data = bin_enc_data[0 : len(bin_enc_data) - 6]  # remove the right padding bits
+    elif len(data) == 22:
+        bin_enc_data = bin_enc_data[0 : len(bin_enc_data) - 2] # remove the right padding bits
+    bin_enc_data = "0" * (30 - len(bin_enc_data)) + bin_enc_data # left padding zero
     # cut 30 bits
-    return bin_enc_data[:30]
+    return bin_enc_data[0:30]
+
 
 if __name__ == "__main__":
-    data = 0b010010110110000010000000.to_bytes(3, "big")
-    print(bin(int.from_bytes(b1i_bch_encode(data), "big"))[2:])
+    data = "0100101101100000100000"
+    enc = b1i_bch_encode_bin(data)
+    print(enc, len(enc))
     data = b"\xE2\x40\xDC\xB0"
     print(b1i_bch_encode_word_1(data).hex())
+    data = b"\x03\x72"
+    print(bch_15_11_enc(data).hex())
 
     # 01001011011
     # 00000100000
