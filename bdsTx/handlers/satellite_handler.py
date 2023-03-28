@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-16 14:36:05
-LastEditTime: 2023-03-12 21:53:28
+LastEditTime: 2023-03-28 13:48:55
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 输出卫星信息和数据帧
 FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
@@ -297,10 +297,10 @@ if __name__ == "__main__":
     import time
     logging.basicConfig(level=logging.DEBUG)
     handler = satelliteHandler()
-    handler.set_alc_path("../satellite_info/almanac/tarc0190.23alc.json").set_eph_path("../satellite_info/ephemeris/tarc0140.json")
+    handler.set_alc_path("bdsTx/satellite_info/almanac/tarc0190.23alc.json").set_eph_path("bdsTx/satellite_info/ephemeris/tarc0140.json")
     handler.set_time(time.time()).set_position((120, 30, 0)).set_broadcast_time(300)
-    handler.set_iono_path("../satellite_info/ionosphere/iono_corr.json")
-    handler.set_prn_path("../coding/ranging_code/")
+    handler.set_iono_path("bdsTx/satellite_info/ionosphere/iono_corr.json")
+    handler.set_prn_path("bdsTx/coding/ranging_code/")
     handler.set_signal_type(SIGNAL_TYPE.B1I_SIGNAL)
     handler.load_alc().load_eph().load_iono_corr().load_prn().find_satellite().init_msg_gen()
     msg = handler.generate()

@@ -119,7 +119,8 @@ def b1i_bch_encode_word_1(data: bytes) -> bytes:
         + ((data[3] & 0b11000000) >> 6)
     )
     enc_data = bch_15_11_enc(data_2.to_bytes(2, "big"))
-    return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
+    # return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
+    return bitwise_parallel_to_serial(data_1.to_bytes(2, "big"), enc_data)
 
 
 def b1i_bch_encode_bin(data: str) -> str:
@@ -143,7 +144,7 @@ def b1i_bch_encode_bin(data: str) -> str:
         raise Exception("Invalid data length")
     bin_enc_data = bin(int.from_bytes(enc_data, "big"))[2:]
     if len(data) == 26:
-        bin_enc_data = bin_enc_data[0 : len(bin_enc_data) - 6]  # remove the right padding bits
+        bin_enc_data = bin_enc_data[0 : len(bin_enc_data) - 2]  # remove the right padding bits
     elif len(data) == 22:
         bin_enc_data = bin_enc_data[0 : len(bin_enc_data) - 2] # remove the right padding bits
     bin_enc_data = "0" * (30 - len(bin_enc_data)) + bin_enc_data # left padding zero
