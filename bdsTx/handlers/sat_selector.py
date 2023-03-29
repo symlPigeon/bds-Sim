@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 11:17:51
-LastEditTime: 2023-02-16 15:10:02
+LastEditTime: 2023-03-29 14:13:25
 LastEditors: symlPigeon 2163953074@qq.com
 Description: Select satellite for PVT calculation
 FilePath: /bds-Sim/bdsTx/handlers/sat_selector.py
@@ -58,6 +58,7 @@ class satelliteSelector:
                 logging.info("--------------------------")
                 logging.info("+ PRN : %02d" % prn)
                 logging.info("+ Elevation : %f" % visible_sats[prn][0])
+                logging.info("+ Satellite Type: %s" % ["INVALID", "GEO", "IGSO", "MEO"][detect_sat_type(prn)])
                 logging.info("--------------------------")
         logging.info("Total %d satellites are selected" % len(self._valid_sats))
         return self

@@ -18,7 +18,7 @@ from bdsTx.satellite_info.broadcast_type import *
 from bdsTx.satellite_info.constants import *
 from bdsTx.satellite_info.detect_sat_type import *
 from bdsTx.satellite_info.position_calculate_by_ephemeris import (
-    get_stellite_position_by_ephemeris,
+    get_satellite_position_by_ephemeris,
 )
 from bdsTx.satellite_info.visible_satellite_searcher import calc_elevation_angle
 
@@ -63,7 +63,7 @@ class messageGenerator:
             for j in range(int(total_time * 10)): # Sample per 0.1 seconds
                 prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 0.1 * j, model="bdgim")
                 ans[prn]["delay"].append(prange.get_pseudo_range())
-                satellite_pos = get_stellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
+                satellite_pos = get_satellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
                 ans[prn]["elevation"].append(calc_elevation_angle(rx_pos=pos, sat_pos=satellite_pos))
             prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="bdgim")
             ans[prn]["refDelay"] = (prange.get_ref_pseudo_range())
@@ -94,7 +94,7 @@ class messageGenerator:
                     # Creating a new method for B3I!
                     prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time + 0.1 * j, model="klobuchar")
                     ans[prn]["delay"].append(prange.get_pseudo_range())
-                    satellite_pos = get_stellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
+                    satellite_pos = get_satellite_position_by_ephemeris(eph, curr_time + 0.1 * j)
                     ans[prn]["elevation"].append(calc_elevation_angle(rx_pos=pos, sat_pos=satellite_pos))
                     
                 prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="klobuchar")

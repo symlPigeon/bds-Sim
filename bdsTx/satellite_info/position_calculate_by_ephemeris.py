@@ -17,7 +17,7 @@ from bdsTx.satellite_info.eccentric_anomaly import calculate_eccentric_anomaly
 from bdsTx.satellite_info.time_system import utc2bds
 
 
-def get_stellite_position_by_ephemeris(
+def get_satellite_position_by_ephemeris(
     ephemeris: dict, curr_time: float
 ) -> Tuple[float, float, float]:
     """返回ECEF坐标系下的卫星位置
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     tags = []
     for stellite_id in ephemeris:
         eph = ephemeris[stellite_id][ref_time]
-        x, y, z = get_stellite_position_by_ephemeris(eph, test_time)
+        x, y, z = get_satellite_position_by_ephemeris(eph, test_time)
         print(x, y, z)
         l, b, h = ecef2lla(x, y, z)
         B.append(b)

@@ -20,7 +20,7 @@ from .ionosphere.bdgim_non_broadcast_coefficients import (
 )
 from .ionosphere_corr_bdgim import get_iono_delay_bdgim
 from .ionosphere_corr_klobuchar import get_iono_delay_klobuchar
-from .position_calculate_by_ephemeris import get_stellite_position_by_ephemeris
+from .position_calculate_by_ephemeris import get_satellite_position_by_ephemeris
 from .time_system import utc2bds
 
 
@@ -137,7 +137,7 @@ def get_pseudo_range_impl(
     # 计算相对论修正
     relativity_corr = get_relativity_corr(ephemeris, curr_time)
     # 计算卫星位置
-    sat_pos = get_stellite_position_by_ephemeris(ephemeris, curr_time)
+    sat_pos = get_satellite_position_by_ephemeris(ephemeris, curr_time)
     # 计算空间几何距离
     space_geometry_distance = get_space_geometry_distance(rx_pos, sat_pos)
     # 电离层延迟

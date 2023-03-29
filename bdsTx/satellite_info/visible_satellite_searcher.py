@@ -13,7 +13,7 @@ import numpy as np
 
 from bdsTx.satellite_info.coordinate_system import ecef2enu, lla2ecef
 from bdsTx.satellite_info.position_calculate_by_ephemeris import (
-    get_stellite_position_by_ephemeris,
+    get_satellite_position_by_ephemeris,
 )
 from bdsTx.satellite_info.time_system import get_closest_timestamp
 
@@ -77,7 +77,7 @@ def get_visible_satellite(
         time_keys = list(ephemeris[prn].keys())
         closest_time = get_closest_timestamp(time_keys, curr_time)
         ecef_rx_pos = lla2ecef(*rx_pos)
-        ecef_sat_pos = get_stellite_position_by_ephemeris(
+        ecef_sat_pos = get_satellite_position_by_ephemeris(
             ephemeris[prn][closest_time], curr_time
         )
         elevation = calc_elevation_angle(ecef_rx_pos, ecef_sat_pos)
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         closest_time = get_closest_timestamp(
             ephemeris["{:02d}".format(key)].keys(), curr_time
         )
-        x, y, z = get_stellite_position_by_ephemeris(
+        x, y, z = get_satellite_position_by_ephemeris(
             ephemeris["{:02d}".format(key)][closest_time], curr_time
         )
         print(x, y, z)
