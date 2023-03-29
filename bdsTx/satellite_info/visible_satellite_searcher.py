@@ -1,11 +1,11 @@
-"""
+'''
 Author: symlpigeon
 Date: 2022-11-09 14:29:47
 LastEditTime: 2022-11-09 23:11:41
 LastEditors: symlpigeon
 Description: 可见星搜寻
 FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
-"""
+'''
 
 from typing import Dict, Tuple
 
@@ -28,7 +28,7 @@ def calc_elevation_angle(
         sat_pos (Tuple[float, float, float]): 卫星位置,ECEF
 
     Returns:
-        float: 仰角
+        float: 仰角, Degree
     """
     rx_x, rx_y, rx_z = rx_pos
     sat_x, sat_y, sat_z = sat_pos
@@ -46,7 +46,7 @@ def calc_azimuth_angle(
         sat_pos (Tuple[float, float, float]): 卫星位置
 
     Returns:
-        float: 方位角
+        float: 方位角, Degree
     """
     rx_x, rx_y, rx_z = rx_pos
     sat_x, sat_y, sat_z = sat_pos

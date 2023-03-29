@@ -1,7 +1,7 @@
 '''
 Author: symlpigeon
 Date: 2022-11-08 15:49:30
-LastEditTime: 2023-02-16 16:13:45
+LastEditTime: 2023-03-29 13:49:49
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 常数定义
 FilePath: /bds-Sim/bdsTx/satellite_info/constants.py
@@ -25,8 +25,10 @@ WGS84_SEMI_MAJOR_AXIS = 6378137.0000
 WGS84_SEMI_MINOR_AXIS = 6356752.3141
 # 地球半径
 EARTH_RADIUS = 6378137.0000
+# 电离层单层高度
+IONOSPHERE_SINGLE_LAYER_ALTITUDE = 375000
 # 电离层薄层高度
-IONOSPHERE_SINGLE_LAYER_ALTITUDE = 400000
+IONOSPHERE_THIN_LAYER_ALTITUDE = 400000
 # 地磁北极经度
 GEO_MAGNETIC_NORTH_POLE_LONGITUDE = -72.58 / 180 * np.pi
 # 地磁北极纬度

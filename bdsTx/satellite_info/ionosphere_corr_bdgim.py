@@ -60,7 +60,7 @@ def get_iono_pierce_point(
         - elevation_angle
         - np.arcsin(
             EARTH_RADIUS
-            / (EARTH_RADIUS + IONOSPHERE_SINGLE_LAYER_ALTITUDE)
+            / (EARTH_RADIUS + IONOSPHERE_THIN_LAYER_ALTITUDE)
             * np.cos(elevation_angle)
         )
     )
@@ -259,7 +259,7 @@ def get_IPP_mapping_func(
         - pow(
             EARTH_RADIUS
             * np.cos(E)
-            / (EARTH_RADIUS + IONOSPHERE_SINGLE_LAYER_ALTITUDE),
+            / (EARTH_RADIUS + IONOSPHERE_THIN_LAYER_ALTITUDE),
             2,
         )
     )

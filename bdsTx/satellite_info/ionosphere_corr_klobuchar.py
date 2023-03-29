@@ -1,21 +1,22 @@
-"""
-Author: symlpigeon
-Date: 2023-01-14 16:01:28
-LastEditTime: 2023-01-14 16:43:56
-LastEditors: symlpigeon
+'''
+Author: symlPigeon 2163953074@qq.com
+Date: 2023-02-06 18:39:47
+LastEditTime: 2023-03-29 12:26:53
+LastEditors: symlPigeon 2163953074@qq.com
 Description: 电离层校正模型，Klobuchar模型 
 FilePath: /bds-Sim/bdsTx/satellite_info/ionosphere_corr_klobuchar.py
-"""
-
-
+'''
 from typing import List, Tuple
 
 import numpy as np
 
-from .constants import *
-from .coordinate_system import ecef2lla
-from .time_system import utc2bds
-from .visible_satellite_searcher import calc_azimuth_angle, calc_elevation_angle
+from bdsTx.satellite_info.constants import *
+from bdsTx.satellite_info.coordinate_system import ecef2lla
+from bdsTx.satellite_info.time_system import utc2bds
+from bdsTx.satellite_info.visible_satellite_searcher import (
+    calc_azimuth_angle,
+    calc_elevation_angle,
+)
 
 
 def get_iono_pierce_point(
@@ -32,8 +33,8 @@ def get_iono_pierce_point(
         Tuple[float, float]: 电离层穿刺点的经纬度，单位：弧度
     """
     user_lon, user_lat, _ = ecef2lla(*user_pos)
-    A = calc_azimuth_angle(user_pos, sat_pos)
-    E = calc_elevation_angle(user_pos, sat_pos)
+    A = calc_azimuth_angle(user_pos, sat_pos) * np.pi / 180
+    E = calc_elevation_angle(user_pos, sat_pos) * np.pi / 180
     psi = (
         np.pi / 2
         - E
@@ -61,7 +62,7 @@ def get_A2(lat_M: float, alpha: List[float]) -> float:
     assert len(alpha) == 4, "Invalid Parameter Alpha for Klobuchar Model!"
     A2 = 0
     for i in range(4):
-        A2 += alpha[i] * pow(np.cos(lat_M) / np.pi, i)
+        A2 += alpha[i] * pow(np.abs(np.cos(lat_M) / np.pi), i)
     if A2 >= 0:
         return A2
     return 0
@@ -80,7 +81,7 @@ def get_A4(lat_M: float, beta: List[float]) -> float:
     assert len(beta) == 4, "Invalid Parameter Beta for Klobuchar Model!"
     A4 = 0
     for i in range(4):
-        A4 += beta[i] * pow(np.cos(lat_M) / np.pi, i)
+        A4 += beta[i] * pow(np.abs(np.cos(lat_M) / np.pi), i)
     if A4 > 172800:
         return 172800
     elif A4 < 72000:
@@ -158,7 +159,7 @@ def get_iono_delay_klobuchar(
         float: 电离层延迟，秒
     """
     # 计算卫星高度角
-    E = calc_elevation_angle(user_pos, sat_pos)
+    E = calc_elevation_angle(user_pos, sat_pos) * np.pi / 180
     # 计算电离层穿刺点位置
     lon_M, lat_M = get_iono_pierce_point(user_pos, sat_pos)
     # 计算电离层穿刺点本地时间
@@ -178,18 +179,8 @@ if __name__ == "__main__":
 
     from coordinate_system import lla2ecef
 
-    alpha = [
-                3.353e-08,
-                1.49e-07,
-                -1.43e-06,
-                2.205e-06
-            ]
-    beta = [
-                124900.0,
-                -32770.0,
-                -720900.0,
-                1311000.0
-            ]
+    alpha = [3.353e-08, 1.49e-07, -1.43e-06, 2.205e-06]
+    beta = [124900.0, -32770.0, -720900.0, 1311000.0]
     user_pos = lla2ecef(120, 30, 0)
     sat_pos = 13515983.005496845, 10990355.209924806, 21780086.766416024
     curr_time = time.time()
