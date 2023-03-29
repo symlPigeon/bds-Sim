@@ -119,9 +119,9 @@ def b1i_bch_encode_word_1(data: bytes) -> bytes:
         + ((data[3] & 0b11000000) >> 6)
     )
     enc_data = bch_15_11_enc(data_2.to_bytes(2, "big"))
-    # return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
-    return bitwise_parallel_to_serial(data_1.to_bytes(2, "big"), enc_data)
-
+    # NOTE: Frame 1 is a special case, it does not need to be interleaved!
+    return ((data_1 << 17) + (int.from_bytes(enc_data, "big") << 2)).to_bytes(4, "big")
+    
 
 def b1i_bch_encode_bin(data: str) -> str:
     """将二进制字符串形式的帧数据进行BCH编码，以及相关的交织等操作
