@@ -1,7 +1,7 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-26 10:54:48
- * @LastEditTime: 2023-03-12 11:38:25
+ * @LastEditTime: 2023-04-03 12:11:45
  * @LastEditors: symlPigeon 2163953074@qq.com
  * @Description: B1I/B3I BPSK Simulation
  * @FilePath: /bds-Sim/signalProcess/bpsk/b1isim.cpp
@@ -21,7 +21,7 @@ b1iChannel::b1iChannel(const signalProcess::b1ISatInfo& sat_info)
       elevation(signalProcess::fDataSource(sat_info.getElevation())),
       refDelay(sat_info.getRefDelay()),
       delt(1. / SAMPLE_FREQ),
-      iterTimes(0),
+      iterTimes(-SIM_UPDATE_STEP),
       iterIdx(ITER_LENGTH),
       nhBitIdx(0) {
     // Set the initial phase

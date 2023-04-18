@@ -1,11 +1,11 @@
-"""
-Author: symlpigeon
-Date: 2022-11-08 23:02:16
-LastEditTime: 2022-11-09 22:02:21
-LastEditors: symlpigeon
+'''
+Author: symlPigeon 2163953074@qq.com
+Date: 2023-02-06 18:39:47
+LastEditTime: 2023-04-13 15:17:52
+LastEditors: symlPigeon 2163953074@qq.com
 Description: 通过星历文件计算卫星位置
-FilePath: /sim_bds/python/satellite_info/position_calculate_by_ephemeris.py
-"""
+FilePath: /bds-Sim/bdsTx/satellite_info/position_calculate_by_ephemeris.py
+'''
 
 import logging
 from typing import Tuple
@@ -139,7 +139,7 @@ def get_satellite_position_by_ephemeris(
 
 
 if __name__ == "__main__":
-    ref_time = "2023-01-14_00:00:00"
+    ref_time = "2023-04-13_03:00:00"
     import calendar
     import json
     import sys
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     from coordinate_system import ecef2lla
 
     filepath = sys.argv[1]
-    test_time = calendar.timegm((2023, 3, 14, 12, 0, 0))
+    test_time = calendar.timegm((2023, 4, 13, 3, 0, 0))
     with open(filepath, "r") as f:
         ephemeris = json.load(f)
     B = []

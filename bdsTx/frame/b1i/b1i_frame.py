@@ -77,11 +77,11 @@ class b1iFrame:
             str: Frame data in hex string
         """
         subframe1 = create_subframe1(curr_time, self._eph, self._klobuchar)
-        subframe2 = create_subframe2(curr_time, self._eph)
-        subframe3 = create_subframe3(curr_time, self._eph)
+        subframe2 = create_subframe2(curr_time + 6, self._eph)
+        subframe3 = create_subframe3(curr_time + 12, self._eph)
         # NOTE: Currently, we just ignore the pageID parameter...
-        subframe4 = create_subframe4(curr_time, self._alc)
-        subframe5 = create_subframe5(curr_time, self._alc)
+        subframe4 = create_subframe4(curr_time + 18, self._alc)
+        subframe5 = create_subframe5(curr_time + 24, self._alc)
         frame = subframe1 + subframe2 + subframe3 + subframe4 + subframe5
         return frame
 

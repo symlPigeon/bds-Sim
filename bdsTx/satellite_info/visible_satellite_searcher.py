@@ -1,11 +1,12 @@
 '''
-Author: symlpigeon
-Date: 2022-11-09 14:29:47
-LastEditTime: 2022-11-09 23:11:41
-LastEditors: symlpigeon
+Author: symlPigeon 2163953074@qq.com
+Date: 2023-02-06 18:39:47
+LastEditTime: 2023-04-13 15:33:41
+LastEditors: symlPigeon 2163953074@qq.com
 Description: 可见星搜寻
-FilePath: /sim_bds/python/satellite_info/visible_satellite_searcher.py
+FilePath: /bds-Sim/bdsTx/satellite_info/visible_satellite_searcher.py
 '''
+
 
 from typing import Dict, Tuple
 
@@ -95,12 +96,12 @@ if __name__ == "__main__":
     eph_file = sys.argv[1]
     with open(eph_file, "r") as f:
         ephemeris = json.load(f)
-    rx_pos = (120, 40, 0)
+    rx_pos = (108.8284, 34.1230, 0)
 
     import calendar
     import time
 
-    curr_time = time.time()
+    curr_time = calendar.timegm((2023, 4, 13, 15, 26, 20))
     visible_satellite = get_visible_satellite(ephemeris, rx_pos, curr_time)
     print(visible_satellite.keys())
 
