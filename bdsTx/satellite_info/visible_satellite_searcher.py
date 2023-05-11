@@ -1,10 +1,10 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-06 18:39:47
-LastEditTime: 2023-04-13 15:33:41
-LastEditors: symlPigeon 2163953074@qq.com
+LastEditTime: 2023-05-11 13:08:08
+LastEditors: symlpigeon
 Description: 可见星搜寻
-FilePath: /bds-Sim/bdsTx/satellite_info/visible_satellite_searcher.py
+FilePath: \bds-Sim\bdsTx\satellite_info\visible_satellite_searcher.py
 '''
 
 
@@ -16,7 +16,7 @@ from bdsTx.satellite_info.coordinate_system import ecef2enu, lla2ecef
 from bdsTx.satellite_info.position_calculate_by_ephemeris import (
     get_satellite_position_by_ephemeris,
 )
-from bdsTx.satellite_info.time_system import get_closest_timestamp
+from bdsTx.satellite_info.time_system import get_closest_timestamp, utc2bds
 
 
 def calc_elevation_angle(
@@ -72,11 +72,13 @@ def get_visible_satellite(
     Returns:
         Dict[int, Tuple[float, dict]]: 返回一个可见卫星的PRN和仰角、星历的对应字典
     """
+    bds_w, bds_s = utc2bds(curr_time) # FIX: Now use BDS Time
+    curr_time_bds = bds_w * 604800 + bds_s
     visible_sat = {}
     for prn in ephemeris:
         i_prn = int(prn)
         time_keys = list(ephemeris[prn].keys())
-        closest_time = get_closest_timestamp(time_keys, curr_time)
+        closest_time = get_closest_timestamp(time_keys, curr_time_bds)
         ecef_rx_pos = lla2ecef(*rx_pos)
         ecef_sat_pos = get_satellite_position_by_ephemeris(
             ephemeris[prn][closest_time], curr_time
