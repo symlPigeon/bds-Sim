@@ -1,7 +1,7 @@
 '''
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-13 13:57:17
-LastEditTime: 2023-03-08 20:24:50
+LastEditTime: 2023-04-24 13:20:16
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 生成导航信息
 FilePath: /bds-Sim/bdsTx/handlers/msg_generator.py
@@ -100,6 +100,16 @@ class messageGenerator:
                 prange = pseudoRangeGenerator(eph, iono_corr, B1I_CARRIER_FREQ, pos, curr_time, model="klobuchar")
                 ans[prn]["refDelay"] = prange.get_ref_pseudo_range()
                 cnt += 1
+                
+                logging.info("--------------------------")
+                logging.info("    SATELLITE %d" % prn)
+                logging.info("    SATE TYPE: %d" % detect_sat_type(prn))
+                logging.info("    Pesudorange: {}".format(ans[prn]["delay"][0] * 299792458))
+                logging.info("    Ref Pesudorange: {}".format(ans[prn]["refDelay"] * 299792458))
+                logging.info("    User Position: {}".format(pos))
+                logging.info("    Satellite Position: {}".format(get_satellite_position_by_ephemeris(eph, curr_time)))
+                logging.info("--------------------------")
+                
         except IndexError as e:
             logging.error("Ooops! It seems that there're not enough MEO and IGSO satellites.")
             return {}

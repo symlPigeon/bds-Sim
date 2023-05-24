@@ -29,14 +29,14 @@ class pseudoRangeGenerator:
             ephemeris (dict): 星历数据，针对当前卫星
             iono_data (dict): 电离层模型
             carrier_freq (float): 载波频率
-            pos (Tuple[float, float, float]): 接收机位置，should be llh
+            pos (Tuple[float, float, float]): 接收机位置
             curr_time (float): 当前时间
             model (str, optional): 电离层校正模型选择. Defaults to "bdgim".
         """
         self._eph = ephemeris
         self._iono_data = iono_data
         self._carrier_freq = carrier_freq
-        self._pos = lla2ecef(*pos)
+        self._pos = pos
         self._curr_time = curr_time
         self._model = model
 
