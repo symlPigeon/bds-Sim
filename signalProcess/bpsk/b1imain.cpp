@@ -1,18 +1,30 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-03-08 13:54:01
- * @LastEditTime: 2023-03-14 18:39:17
- * @LastEditors: symlPigeon 2163953074@qq.com
+ * @LastEditTime: 2023-05-11 14:49:05
+ * @LastEditors: symlpigeon
  * @Description: B1I Main
- * @FilePath: /bds-Sim/signalProcess/bpsk/b1imain.cpp
+ * @FilePath: \bds-Sim\signalProcess\bpsk\b1imain.cpp
  */
 
 #include "b1isim.hpp"
 #include <cstddef>
 #include <cstdlib>
+#include <future>
 #include <iostream>
+#include <thread>
+#include <tuple>
 
 using namespace signalProcess;
+
+std::vector<std::tuple<float, float>> calcIqSample(b1iChannel *channel) {
+  std::vector<std::tuple<float, float>> iqSample;
+  for (int i = 0; i < ITER_LENGTH; i++) {
+    auto [iData, qData] = channel->getNextData();
+    iqSample.push_back(std::make_tuple(iData, qData));
+  }
+  return iqSample;
+}
 
 int main() {
     // read json file
@@ -37,20 +49,37 @@ int main() {
 
     for (int i = 0; i < SIMULATION_TIME / SIM_UPDATE_STEP; i++) {
         // 0.1 second
+        using thread_ret_t =
+            std::vector<std::tuple<float, float>>; // thread output type
+
+        std::vector<std::future<thread_ret_t>> thread_res;
+
+        std::vector<thread_ret_t> thread_ret;
+
+        for (int k = 0; k < channel_cnt; k++) {
+          thread_res.push_back(std::async(calcIqSample, &channels[k]));
+        }
+
+        for (int k = 0; k < channel_cnt; k++) {
+          thread_ret.push_back(thread_res[k].get());
+        }
+
         for (int j = 0; j < ITER_LENGTH; j++) {
-            int i_acc = 0;
-            int q_acc = 0;
-            for (int k = 0; k < channel_cnt; k++) {
-                auto [iData, qData] = channels[k].getNextData();
-                i_acc += iData;
-                q_acc += qData;
-            }
 
-            i_acc = (i_acc + 64) >> 7;
-            q_acc = (q_acc + 64) >> 7;
+          int i_acc = 0;
+          int q_acc = 0;
 
-            iq_buff[static_cast<ptrdiff_t>(2 * j)]     = (short)i_acc;
-            iq_buff[static_cast<ptrdiff_t>(2 * j + 1)] = (short)q_acc;
+          for (int k = 0; k < channel_cnt; k++) {
+            auto [iData, qData] = thread_ret[k][j];
+            i_acc += iData;
+            q_acc += qData;
+          }
+
+          i_acc = (i_acc + 64) >> 7;
+          q_acc = (q_acc + 64) >> 7;
+
+          iq_buff[static_cast<ptrdiff_t>(2 * j)] = (short)i_acc;
+          iq_buff[static_cast<ptrdiff_t>(2 * j + 1)] = (short)q_acc;
         }
         // fwrite(
         //     iq_buff, sizeof(short), static_cast<size_t>(2 * ITER_LENGTH), fp);
@@ -61,7 +90,7 @@ int main() {
                sizeof(signed char),
                static_cast<size_t>(2 * ITER_LENGTH),
                fp);
-        printf("Sencond %f Done!\n", i * 0.1);
+        printf("Second %f Done!\n", i * 0.1);
     }
     std::cout << "Done!" << std::endl;
     free(iq_buff);

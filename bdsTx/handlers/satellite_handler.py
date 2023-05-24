@@ -1,11 +1,11 @@
-'''
+"""
 Author: symlPigeon 2163953074@qq.com
 Date: 2023-02-16 14:36:05
 LastEditTime: 2023-05-02 12:39:29
 LastEditors: symlPigeon 2163953074@qq.com
 Description: 输出卫星信息和数据帧
 FilePath: /bds-Sim/bdsTx/handlers/satellite_handler.py
-'''
+"""
 
 from __future__ import annotations
 
@@ -27,12 +27,11 @@ from bdsTx.satellite_info.detect_sat_type import detect_sat_type
 
 class satelliteHandler:
     def __init__(self):
-        """construction of satelliteHandler
-        """
-        self._pos = (0., 0., 0.)
-        self._time = 0.
+        """construction of satelliteHandler"""
+        self._pos = (0.0, 0.0, 0.0)
+        self._time = 0.0
         self._signal_type = 0
-        self._broadcast_time = 0.
+        self._broadcast_time = 0.0
         self._eph_path = ""
         self._alc_path = ""
         self._iono_path = ""
@@ -42,7 +41,7 @@ class satelliteHandler:
         self._alc = {}
         self._available_sats = []
         self._ldpc_mats = []
-        
+
     def set_position(self, pos: Tuple[float, float, float]) -> satelliteHandler:
         """设置接收机位置
 
@@ -54,7 +53,7 @@ class satelliteHandler:
         """
         self._pos = pos
         return self
-    
+
     def set_time(self, time: float) -> satelliteHandler:
         """设置时间
 
@@ -66,7 +65,7 @@ class satelliteHandler:
         """
         self._time = time
         return self
-    
+
     def set_signal_type(self, signal_type: int) -> satelliteHandler:
         """设置信号类型
 
@@ -78,7 +77,7 @@ class satelliteHandler:
         """
         self._signal_type = signal_type
         return self
-        
+
     def set_broadcast_time(self, broadcast_time: float) -> satelliteHandler:
         """设置播发的时间，用于生成数据的长度
 
@@ -90,7 +89,7 @@ class satelliteHandler:
         """
         self._broadcast_time = broadcast_time
         return self
-    
+
     def set_eph_path(self, eph_path: str) -> satelliteHandler:
         """设置星历文件的路径
 
@@ -102,7 +101,7 @@ class satelliteHandler:
         """
         self._eph_path = eph_path
         return self
-    
+
     def set_alc_path(self, alc_path: str) -> satelliteHandler:
         """设置历书文件的路径
 
@@ -114,7 +113,7 @@ class satelliteHandler:
         """
         self._alc_path = alc_path
         return self
-    
+
     def set_iono_path(self, iono_path: str) -> satelliteHandler:
         """设置电离层矫正数据的路径
 
@@ -126,7 +125,7 @@ class satelliteHandler:
         """
         self._iono_path = iono_path
         return self
-    
+
     def set_prn_path(self, prn_path: str) -> satelliteHandler:
         """设置PRN号的路径，应该是包含了b1c/b1i/b3i/b2a四个子文件夹的路径
 
@@ -138,7 +137,7 @@ class satelliteHandler:
         """
         self._prn_path = prn_path
         return self
-    
+
     def set_ldpc_path(self, ldpc_path: List[str]) -> satelliteHandler:
         """设置ldpc码的路径，这是B1C/B2a需要的
 
@@ -150,7 +149,7 @@ class satelliteHandler:
         """
         self._ldpc_paths = ldpc_path
         return self
-    
+
     def load_prn(self) -> satelliteHandler:
         """初始化测距码读取类
 
@@ -161,7 +160,7 @@ class satelliteHandler:
             raise ValueError("PRN file path not set")
         self._prn_reader = rangingCodeReader(self._prn_path)
         return self
-    
+
     def load_ldpc_mats(self) -> satelliteHandler:
         """加载LDPC矩阵，B1C/B2a需要
 
@@ -177,7 +176,7 @@ class satelliteHandler:
             ldpc_loader = ldpcLoader(ldpc_path)
             self._ldpc_mats.append(ldpc_loader.get())
         return self
-    
+
     def load_eph(self) -> satelliteHandler:
         """加载星历数据
 
@@ -192,7 +191,7 @@ class satelliteHandler:
         eph_reader = ephemerisReader(self._eph_path)
         self._eph = eph_reader.get_ephemeris()
         return self
-    
+
     def load_alc(self) -> satelliteHandler:
         """加载历书数据
 
@@ -207,7 +206,7 @@ class satelliteHandler:
         alc_reader = almanacReader(self._alc_path)
         self._alc = alc_reader.getAlmanac()
         return self
-    
+
     def load_iono_corr(self) -> satelliteHandler:
         """加载电离层数据
 
@@ -221,7 +220,7 @@ class satelliteHandler:
             raise ValueError("ionosphere correction file path not set")
         self._iono_corr = ionoCorrReader(self._iono_path)
         return self
-    
+
     def find_satellite(self) -> satelliteHandler:
         """寻找可见星
 
@@ -234,9 +233,11 @@ class satelliteHandler:
         if self._eph == {}:
             raise ValueError("ephemeris not loaded!")
         sat_finder = satelliteSelector(self._eph)
-        self._available_sats = sat_finder.select(self._time, self._pos, self._signal_type).get_satellites()
+        self._available_sats = sat_finder.select(
+            self._time, self._pos, self._signal_type
+        ).get_satellites()
         return self
-        
+
     def init_msg_gen(self) -> satelliteHandler:
         """初始化消息生成器
 
@@ -247,16 +248,20 @@ class satelliteHandler:
         Returns:
             satelliteHandler: _description_
         """
-        self._sat_msg_generator = messageGenerator(self._available_sats, self._signal_type)
+        self._sat_msg_generator = messageGenerator(
+            self._available_sats, self._signal_type
+        )
         match self._signal_type:
             case SIGNAL_TYPE.B1C_SIGNAL:
                 if len(self._ldpc_mats) < 2:
                     raise ValueError("LDPC matrix not set properly!")
                 args = {
-                    "ldpc_mat_1": self._ldpc_mats[0], 
+                    "ldpc_mat_1": self._ldpc_mats[0],
                     "ldpc_mat_2": self._ldpc_mats[1],
                     "iono_corr": self._iono_corr.get_bdgim(),
-                    "frame_order": [1], # FIXME: Set this value according to the real-world situtation
+                    "frame_order": [
+                        1
+                    ],  # FIXME: Set this value according to the real-world situtation
                     "pos": lla2ecef(*self._pos),
                 }
             case SIGNAL_TYPE.B2A_SIGNAL:
@@ -272,32 +277,36 @@ class satelliteHandler:
                 raise ValueError("Invalid signal type!")
         self._sat_msg_gen_args = args
         return self
-        
+
     def generate(self) -> list:
         datas = []
-        msgs = self._sat_msg_generator.gen_message(self._time, self._broadcast_time, self._sat_msg_gen_args)
-        
-        cnt = 0
+        msgs = self._sat_msg_generator.gen_message(
+            self._time, self._broadcast_time, self._sat_msg_gen_args
+        )
+
         for prn in msgs:
+            prn_info = rangingCodeReader(self._prn_path).read(prn, self._signal_type)
             data = {
                 "data": msgs[prn]["data"],
-                "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type)["prn"],
                 "type": detect_sat_type(prn),
                 "delay": msgs[prn]["delay"],
                 "refDelay": msgs[prn]["refDelay"],
                 "elevation": msgs[prn]["elevation"],
             }
+            data.update(prn_info)
             datas.append(data)
-            cnt += 1
         return datas
-    
-    
+
+
 if __name__ == "__main__":
     import json
     import time
+
     logging.basicConfig(level=logging.DEBUG)
     handler = satelliteHandler()
-    handler.set_alc_path("bdsTx/satellite_info/almanac/tarc0190.23alc.json").set_eph_path("bdsTx/satellite_info/ephemeris/tarc1030.json")
+    handler.set_alc_path(
+        "bdsTx/satellite_info/almanac/tarc0190.23alc.json"
+    ).set_eph_path("bdsTx/satellite_info/ephemeris/tarc1030.json")
     handler.set_time(time.time()).set_position((120, 30, 0)).set_broadcast_time(300)
     handler.set_iono_path("bdsTx/satellite_info/ionosphere/iono_corr.json")
     handler.set_prn_path("bdsTx/coding/ranging_code/")

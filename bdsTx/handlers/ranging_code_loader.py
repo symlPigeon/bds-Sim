@@ -39,6 +39,13 @@ class rangingCodeReader:
                     raise FileNotFoundError()
             with open(path, "r") as f:
                 data = json.load(f)
+            match signal_type:
+                case SIGNAL_TYPE.B1C_SIGNAL:
+                    data["prn"] = data["data"]
+                    data["qprn"] = data["pilot"]
+                    data["qprn_sub"] = data["sub_pilot"]
+                case SIGNAL_TYPE.B1I_SIGNAL | SIGNAL_TYPE.B3I_SIGNAL:
+                    pass # the data is already in the right format
             return data
         except FileNotFoundError:
             logging.error("File Not Found!")
