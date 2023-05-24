@@ -1,10 +1,10 @@
 /*
  * @Author: symlPigeon 2163953074@qq.com
  * @Date: 2023-02-09 12:59:01
- * @LastEditTime: 2023-03-08 20:38:18
- * @LastEditors: symlPigeon 2163953074@qq.com
+ * @LastEditTime: 2023-05-17 13:03:37
+ * @LastEditors: symlpigeon
  * @Description: 用于存储卫星信息、解析bdsTx模块传输的数据
- * @FilePath: /bds-Sim/signalProcess/util/satInfo.hpp
+ * @FilePath: \bds-Sim\signalProcess\util\satInfo.hpp
  */
 
 #ifndef SIGNALPROCESS_UTIL_SATINFO_HPP_
@@ -26,7 +26,7 @@ private:
     std::string         prn;
     satType             type;
     std::vector<double> delay;
-    double              refDealy;
+    double              refDelay;
     std::vector<double> elevation;
 
 public:
@@ -49,6 +49,42 @@ public:
     b1IFileSource(const std::string& filepath);
     ~b1IFileSource(){};
     b1ISatInfo getSatInfo(const int idx);
+    unsigned int getSatCnt() const;
+};
+
+class b1CSatInfo {
+private:
+    std::string         data;
+    std::string         iprn;
+    std::string         qprn;
+    std::string         sub_qprn;
+    satType             type;
+    std::vector<double> delay;
+    double              refDelay;
+    std::vector<double> elevation;
+
+public:
+    b1CSatInfo(const json& raw_data);
+    b1CSatInfo(){};
+    ~b1CSatInfo(){};
+    std::string         getPrn() const;
+    std::string         getQPrn() const;
+    std::string         getSubQPrn() const;
+    satType             getType() const;
+    std::string         getData() const;
+    std::vector<double> getDelay() const;
+    double              getRefDelay() const;
+    std::vector<double> getElevation() const;
+};
+
+class b1CFileSource {
+private:
+    json sat_data;
+
+public:
+    b1CFileSource(const std::string& filepath);
+    ~b1CFileSource(){};
+    b1CSatInfo   getSatInfo(const int idx);
     unsigned int getSatCnt() const;
 };
 

@@ -20,5 +20,7 @@ FetchContent_Declare(json
   GIT_TAG v3.11.2)
 FetchContent_MakeAvailable(json)
 
+find_package(Threads REQUIRED)
+
 add_executable(bpsk_sim ${UTIL_SRC} ${UTIL_HEADER} ${BPSK_SRC} ${BPSK_HEADER})
-target_link_libraries(bpsk_sim PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(bpsk_sim PRIVATE nlohmann_json::nlohmann_json ${CMAKE_THREAD_LIBS_INIT})

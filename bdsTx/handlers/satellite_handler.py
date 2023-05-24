@@ -283,21 +283,18 @@ class satelliteHandler:
         msgs = self._sat_msg_generator.gen_message(
             self._time, self._broadcast_time, self._sat_msg_gen_args
         )
-
-        cnt = 0
+        
         for prn in msgs:
+            prn_info = rangingCodeReader(self._prn_path).read(prn, self._signal_type)
             data = {
                 "data": msgs[prn]["data"],
-                "prn": rangingCodeReader(self._prn_path).read(prn, self._signal_type)[
-                    "prn"
-                ],
                 "type": detect_sat_type(prn),
                 "delay": msgs[prn]["delay"],
                 "refDelay": msgs[prn]["refDelay"],
                 "elevation": msgs[prn]["elevation"],
             }
+            data.update(prn_info)
             datas.append(data)
-            cnt += 1
         return datas
 
 
