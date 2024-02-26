@@ -1,4 +1,7 @@
 # bds-Sim
+
+> 此分支为毕业设计的源代码，此处分离该分支作为留档备份材料。
+
 北斗信号模拟。
 
 BeiDou navigation satellite system signal simulator.
