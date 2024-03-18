@@ -60,6 +60,9 @@ def main():
             handler.set_signal_type(SIGNAL_TYPE.B1I_SIGNAL)
         case "B1C":
             handler.set_signal_type(SIGNAL_TYPE.B1C_SIGNAL)
+        case _:
+            print("invalid signal!")
+            return
     if args.ldpc_path:
         handler.set_ldpc_path(args.ldpc_path)
     handler.load_alc().load_eph().load_iono_corr().load_prn()
