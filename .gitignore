@@ -134,3 +134,6 @@ dmypy.json
 
 # GNURadio Program Generated Python Flowchart File
 flowchart_poc/*.py
+
+# generated msg.json
+msg.json
