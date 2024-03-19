@@ -11,10 +11,11 @@ import json
 from typing import Tuple
 
 import numpy as np
-from constants import *
-from detect_sat_type import detect_sat_type
-from eccentric_anomaly import calculate_eccentric_anomaly
-from time_system import utc2bds
+
+from .constants import *
+from .detect_sat_type import detect_sat_type
+from .eccentric_anomaly import calculate_eccentric_anomaly
+from .time_system import utc2bds
 
 
 def get_satellite_position_by_almanac(
@@ -85,8 +86,9 @@ if __name__ == "__main__":
     import sys
 
     import matplotlib.pyplot as plt
-    from coordinate_system import ecef2lla
     from mpl_toolkits.basemap import Basemap
+
+    from .coordinate_system import ecef2lla
 
     filepath = sys.argv[1]
 
