@@ -1,11 +1,10 @@
-use crate::constants::B1I_PRN_LEN;
-
 pub trait SatelliteLoader {
-    fn next_prn_bit(&mut self) -> u8;
-    fn next_elevation(&mut self) -> f64;
-    fn next_delay(&mut self) -> f64;
-    fn next_data_bit(&mut self) -> u8;
+    fn get_prn_bit(&self, idx: usize) -> u8;
+    fn get_elevation(&self, idx: usize) -> f64;
+    fn get_delay(&self, idx: usize) -> f64;
+    fn get_data_bit(&self, idx: usize) -> u8;
     fn ref_delay(&self) -> f64;
+    fn sample_length(&self) -> usize;
 }
 
 pub struct Bds2SatelliteInfo {
@@ -13,11 +12,7 @@ pub struct Bds2SatelliteInfo {
     pub elevation: Vec<f64>,
     pub delay: Vec<f64>,
     pub ref_delay: f64,
-    pub data: Vec<u8>,
-    prn_idx: usize,
-    data_idx: usize,
-    delay_idx: usize,
-    elevation_idx: usize,
+    pub data: Vec<u8>
 }
 
 impl Bds2SatelliteInfo {
@@ -84,10 +79,6 @@ impl Bds2SatelliteInfo {
             delay,
             ref_delay,
             data,
-            prn_idx: 0,
-            data_idx: 0,
-            delay_idx: 0,
-            elevation_idx: 0,
         })
     }
 
@@ -108,44 +99,23 @@ impl Bds2SatelliteInfo {
 }
 
 impl SatelliteLoader for Bds2SatelliteInfo {
-    fn next_prn_bit(&mut self) -> u8 {
-        let prn_idx = self.prn_idx / 3;
-        let bit_idx = self.prn_idx % 3;
-        let bit = (self.prn[prn_idx] >> (2 - bit_idx)) & 1;
-        self.prn_idx += 1;
-        if self.prn_idx >= B1I_PRN_LEN {
-            self.prn_idx = 0;
-        }
-        bit
+    fn get_data_bit(&self, idx: usize) -> u8 {
+        self.data[idx]
     }
-    fn next_data_bit(&mut self) -> u8 {
-        let data_idx = self.data_idx / 4;
-        let bit_idx = self.data_idx % 4;
-        let bit = (self.data[data_idx] >> (3 - bit_idx)) & 1;
-        self.data_idx += 1;
-        if self.data_idx >= self.data.len() * 4 {
-            self.data_idx = 0;
-        }
-        bit
+    fn get_delay(&self, idx: usize) -> f64 {
+        self.delay[idx]
     }
-    fn next_delay(&mut self) -> f64 {
-        let delay = self.delay[self.delay_idx];
-        self.delay_idx += 1;
-        if self.delay_idx >= self.delay.len() {
-            self.delay_idx = 0;
-        }
-        delay
+    fn get_elevation(&self, idx: usize) -> f64 {
+        self.elevation[idx]
     }
-    fn next_elevation(&mut self) -> f64 {
-        let elevation = self.elevation[self.elevation_idx];
-        self.elevation_idx += 1;
-        if self.elevation_idx >= self.elevation.len() {
-            self.elevation_idx = 0;
-        }
-        elevation
+    fn get_prn_bit(&self, idx: usize) -> u8 {
+        self.prn[idx]
     }
     fn ref_delay(&self) -> f64 {
         self.ref_delay
+    }
+    fn sample_length(&self) -> usize {
+        self.delay.len()
     }
 }
 

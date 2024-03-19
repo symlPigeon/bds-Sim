@@ -1,10 +1,139 @@
 use num_complex::Complex32;
 
-use crate::satellite_loader::Bds2SatelliteInfo;
+use crate::{constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED}, satellite_loader::{Bds2SatelliteInfo, SatelliteLoader}};
 
 pub struct B1iSimulation {
-    satellites: Vec<Bds2SatelliteInfo>,
+    satellites: Vec<B1iSatelliteWrapper>,
     sim_time: f64,
+    delay_step: f64,
+    sim_duration: f64,
+    sim_data: Vec<Complex32>,
     sim_step: f64,
-    
+}
+
+impl B1iSimulation {
+    pub fn new(msg_path: &str, delay_step: f64, sample_rate: f64) -> Result<B1iSimulation, String> {
+        let satellites = Bds2SatelliteInfo::from_file(msg_path)?
+            .into_iter()
+            .map(|x| B1iSatelliteWrapper::new(x, delay_step, 1.0 / sample_rate))
+            .collect::<Vec<B1iSatelliteWrapper>>();
+        let sim_duration = satellites[0].satellite.sample_length() as f64 * delay_step;
+        let sim_step = 1.0 / sample_rate;
+        let sim_data = vec![Complex32::new(0.0, 0.0); (sim_duration / sim_step) as usize];
+        Ok(B1iSimulation {
+            satellites,
+            sim_time: 0.0,
+            delay_step,
+            sim_duration,
+            sim_data,
+            sim_step,
+        })
+    }
+
+    pub fn simulate(&mut self) {
+        for satellite in self.satellites.iter_mut() {
+            satellite.init();
+        }
+        let mut time_idx = 0.0;
+        let end_time = self.satellites[0].satellite.sample_length() as f64 * self.delay_step;
+        let iter_nums = (end_time / self.sim_step) as u64;
+        println!("Simulating for {} seconds...", end_time);
+        let bar = indicatif::ProgressBar::new(iter_nums);
+        while time_idx < end_time {
+            let mut sample = Complex32::new(0.0, 0.0);
+            for satellite in self.satellites.iter_mut() {
+                sample += satellite.simulate();
+            }
+            self.sim_data.push(sample);
+            time_idx += self.sim_step;
+            bar.inc(1);
+        }
+        bar.finish();
+    }
+
+    pub fn export(&self, filename: &str) {
+        let mut writer = std::fs::File::create(filename).unwrap();
+        for sample in self.sim_data.iter() {
+            unsafe {
+                let sample = std::mem::transmute::<Complex32, [u8; 8]>(*sample);
+                std::io::Write::write_all(&mut writer, &sample).unwrap();
+            }
+        }
+    }
+}
+
+pub struct B1iSatelliteWrapper {
+    satellite: Bds2SatelliteInfo,
+    curr_time: f64,
+    delay_idx: usize,
+    delay: f64,
+    ref_delay: f64,
+    elevation: f64,
+    phase_shift: f64,
+    delay_step: f64,
+    sim_step: f64
+}
+
+impl B1iSatelliteWrapper {
+    pub fn new(satellite: Bds2SatelliteInfo, delay_step: f64, sim_step: f64) -> B1iSatelliteWrapper {
+        B1iSatelliteWrapper {
+            satellite,
+            curr_time: 0.0,
+            delay_idx: 0,
+            delay: 0.0,
+            ref_delay: 0.0,
+            elevation: 0.0,
+            phase_shift: 0.0,
+            delay_step,
+            sim_step
+        }
+    }
+
+    pub fn next_delay(&mut self) {
+        self.ref_delay = self.delay;
+        // delay and elevation share the same index.
+        self.delay = self.satellite.get_delay(self.delay_idx);
+        self.elevation = self.satellite.get_elevation(self.delay_idx);
+        self.delay_idx += 1;
+    }
+
+    pub fn get_idx_by_time(&self, curr_time: f64) -> (usize, usize, usize) {
+        let start_time_ims = (curr_time * 1000.0) as usize; // how many ms have passed
+        let start_time_ms = curr_time - start_time_ims as f64; // inside the current ms, how much time has passed
+        let prn_idx = (start_time_ms * B1I_PRN_LEN as f64) as usize; // in 1ms we transmit all 2046 PRN bits
+        let nh_idx = start_time_ims % 20; // one nh bit lasts 1ms, in 20ms we transmit all nh bits
+        let msg_idx = start_time_ims / 20; // one message bit lasts 20ms
+        (prn_idx, nh_idx, msg_idx)
+    }
+
+    pub fn doppler_shift(&self) -> f64 {
+        // f_d = \frac{v}{c} \cdot f_0
+        let delta_t = self.delay - self.ref_delay;
+        let delta_dist = delta_t * LIGHT_SPEED;
+        let v = delta_dist / self.delay_step;
+        v / LIGHT_SPEED * BDS2_FREQ
+    }
+
+    pub fn init(&mut self) {
+        // init parameters for simulation...
+        self.curr_time = 6.0 - self.satellite.get_delay(0); // 1 message unit = 6 seconds, add this to avoid negative start time
+        self.delay = self.satellite.get_delay(self.delay_idx);
+        self.ref_delay = self.satellite.ref_delay();
+        self.elevation = self.satellite.get_elevation(self.delay_idx);
+        self.delay_idx += 1;
+        // calculate phase shift
+        // the movement of satellites and receiver will cause phase shift
+        let freq_shift = self.doppler_shift();
+        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step;
+    }
+
+    pub fn simulate(&mut self) -> Complex32 {
+        let (prn_idx, nh_idx, msg_idx) = self.get_idx_by_time(self.curr_time);
+        let prn_bit = self.satellite.get_prn_bit(prn_idx);
+        let nh_bit = B1I_NH_CODE[nh_idx];
+        let msg_bit = self.satellite.get_data_bit(msg_idx);
+        let modulation_bit = (prn_bit ^ nh_bit ^ msg_bit) as f32 * 2.0 - 1.0; // to BPSK bits
+        let tx_sample = Complex32::new(modulation_bit, 0.0);
+        tx_sample + Complex32::new(self.phase_shift.cos() as f32, self.phase_shift.sin() as f32)
+    }
 }

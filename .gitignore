@@ -1,1 +1,4 @@
 /target
+msg.json
+*.bin
+*.fc32
