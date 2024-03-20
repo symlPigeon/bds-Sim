@@ -1,6 +1,11 @@
+use std::io::Write;
+
 use num_complex::Complex32;
 
-use crate::{constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED}, satellite_loader::{Bds2SatelliteInfo, SatelliteLoader}};
+use crate::{
+    constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED},
+    satellite_loader::{Bds2SatelliteInfo, SatelliteLoader},
+};
 
 pub struct B1iSimulation {
     satellites: Vec<B1iSatelliteWrapper>,
@@ -9,17 +14,25 @@ pub struct B1iSimulation {
     sim_duration: f64,
     sim_data: Vec<Complex32>,
     sim_step: f64,
+    file_handler: std::fs::File,
 }
 
 impl B1iSimulation {
-    pub fn new(msg_path: &str, delay_step: f64, sample_rate: f64) -> Result<B1iSimulation, String> {
+    pub fn new(
+        msg_path: &str,
+        delay_step: f64,
+        sample_rate: f64,
+        output_name: &str,
+    ) -> Result<B1iSimulation, String> {
+        println!("[1/4] Loading satellite data...");
         let satellites = Bds2SatelliteInfo::from_file(msg_path)?
             .into_iter()
             .map(|x| B1iSatelliteWrapper::new(x, delay_step, 1.0 / sample_rate))
             .collect::<Vec<B1iSatelliteWrapper>>();
         let sim_duration = satellites[0].satellite.sample_length() as f64 * delay_step;
         let sim_step = 1.0 / sample_rate;
-        let sim_data = vec![Complex32::new(0.0, 0.0); (sim_duration / sim_step) as usize];
+        let sim_data = Vec::new();
+        let file_handler = std::fs::File::create(output_name).map_err(|e| e.to_string())?;
         Ok(B1iSimulation {
             satellites,
             sim_time: 0.0,
@@ -27,38 +40,51 @@ impl B1iSimulation {
             sim_duration,
             sim_data,
             sim_step,
+            file_handler,
         })
     }
 
     pub fn simulate(&mut self) {
+        println!("[2/4] Initializing system...");
         for satellite in self.satellites.iter_mut() {
             satellite.init();
         }
-        let mut time_idx = 0.0;
-        let end_time = self.satellites[0].satellite.sample_length() as f64 * self.delay_step;
+        println!("  * Satellites initialized.");
+        let end_time = (self.satellites[0].satellite.sample_length() - 1) as f64 * self.delay_step;
+        //                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ^ decrease 1 to avoid overflow
         let iter_nums = (end_time / self.sim_step) as u64;
+        let update_interval = (self.delay_step / self.sim_step) as usize;
         println!("Simulating for {} seconds...", end_time);
+        println!("[3/4] Start simulation...");
         let bar = indicatif::ProgressBar::new(iter_nums);
-        while time_idx < end_time {
+        for idx in 0..iter_nums {
             let mut sample = Complex32::new(0.0, 0.0);
             for satellite in self.satellites.iter_mut() {
                 sample += satellite.simulate();
             }
             self.sim_data.push(sample);
-            time_idx += self.sim_step;
             bar.inc(1);
-        }
-        bar.finish();
-    }
-
-    pub fn export(&self, filename: &str) {
-        let mut writer = std::fs::File::create(filename).unwrap();
-        for sample in self.sim_data.iter() {
-            unsafe {
-                let sample = std::mem::transmute::<Complex32, [u8; 8]>(*sample);
-                std::io::Write::write_all(&mut writer, &sample).unwrap();
+            if idx as usize % update_interval == 0 {
+                for satellite in self.satellites.iter_mut() {
+                    satellite.update();
+                }
+            }
+            if idx as usize % (update_interval * 10) == 0 && idx != 0 {
+                self.export();
             }
         }
+        bar.finish();
+        println!("[4/4] Stop simulation.");
+    }
+
+    pub fn export(&mut self) {
+        unsafe {
+            let data_ptr = self.sim_data.as_ptr() as *const u8;
+            let data_len = self.sim_data.len() * std::mem::size_of::<Complex32>();
+            let data = std::slice::from_raw_parts(data_ptr, data_len);
+            self.file_handler.write_all(data).unwrap();
+        }
+        self.sim_data.clear();
     }
 }
 
@@ -71,11 +97,15 @@ pub struct B1iSatelliteWrapper {
     elevation: f64,
     phase_shift: f64,
     delay_step: f64,
-    sim_step: f64
+    sim_step: f64,
 }
 
 impl B1iSatelliteWrapper {
-    pub fn new(satellite: Bds2SatelliteInfo, delay_step: f64, sim_step: f64) -> B1iSatelliteWrapper {
+    pub fn new(
+        satellite: Bds2SatelliteInfo,
+        delay_step: f64,
+        sim_step: f64,
+    ) -> B1iSatelliteWrapper {
         B1iSatelliteWrapper {
             satellite,
             curr_time: 0.0,
@@ -85,24 +115,16 @@ impl B1iSatelliteWrapper {
             elevation: 0.0,
             phase_shift: 0.0,
             delay_step,
-            sim_step
+            sim_step,
         }
-    }
-
-    pub fn next_delay(&mut self) {
-        self.ref_delay = self.delay;
-        // delay and elevation share the same index.
-        self.delay = self.satellite.get_delay(self.delay_idx);
-        self.elevation = self.satellite.get_elevation(self.delay_idx);
-        self.delay_idx += 1;
     }
 
     pub fn get_idx_by_time(&self, curr_time: f64) -> (usize, usize, usize) {
         let start_time_ims = (curr_time * 1000.0) as usize; // how many ms have passed
         let start_time_ms = curr_time - start_time_ims as f64; // inside the current ms, how much time has passed
         let prn_idx = (start_time_ms * B1I_PRN_LEN as f64) as usize; // in 1ms we transmit all 2046 PRN bits
-        let nh_idx = start_time_ims % 20; // one nh bit lasts 1ms, in 20ms we transmit all nh bits
-        let msg_idx = start_time_ims / 20; // one message bit lasts 20ms
+        let nh_idx = start_time_ims % B1I_NH_LEN; // one nh bit lasts 1ms, in 20ms we transmit all nh bits
+        let msg_idx = start_time_ims / B1I_NH_LEN; // one message bit lasts 20ms
         (prn_idx, nh_idx, msg_idx)
     }
 
@@ -123,6 +145,15 @@ impl B1iSatelliteWrapper {
         self.delay_idx += 1;
         // calculate phase shift
         // the movement of satellites and receiver will cause phase shift
+        let freq_shift = self.doppler_shift();
+        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step;
+    }
+
+    pub fn update(&mut self) {
+        self.ref_delay = self.delay;
+        self.delay = self.satellite.get_delay(self.delay_idx);
+        self.elevation = self.satellite.get_elevation(self.delay_idx);
+        self.delay_idx += 1;
         let freq_shift = self.doppler_shift();
         self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step;
     }
