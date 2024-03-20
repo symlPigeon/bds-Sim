@@ -3,6 +3,8 @@ import json
 import logging
 import time
 
+from numpy import require
+
 from bdsTx.handlers.satellite_handler import satelliteHandler
 from bdsTx.satellite_info.broadcast_type import SIGNAL_TYPE
 
@@ -17,9 +19,14 @@ def parse_args():
         type=float,
         nargs=3,
         help="Position to set, consisting of (longitude, latitude, height).",
+        required=True,
     )
-    parser.add_argument("-a", "--alc", type=str, help="Path to Almanac file.")
-    parser.add_argument("-e", "--eph", type=str, help="Path to Ephemeris file.")
+    parser.add_argument(
+        "-a", "--alc", type=str, help="Path to Almanac file.", required=True
+    )
+    parser.add_argument(
+        "-e", "--eph", type=str, help="Path to Ephemeris file.", required=True
+    )
     parser.add_argument(
         "-t", "--time", type=float, default=time.time(), help="Simulation start time."
     )
@@ -31,21 +38,31 @@ def parse_args():
         help="Signal type, default is `B1I`.",
     )
     parser.add_argument(
-        "-i", "--iono_path", type=str, help="Path to ionosphere correction data."
+        "-i",
+        "--iono_path",
+        type=str,
+        help="Path to ionosphere correction data.",
+        required=True,
     )
     parser.add_argument(
-        "-r", "--prn_path", type=str, help="Path to PRN file directory."
+        "-r", "--prn_path", type=str, help="Path to PRN file directory.", required=True
     )
-    parser.add_argument("-b", "--broadcast_time", type=float, help="Broadcast time.")
-    parser.add_argument("-l", "--ldpc_path", type=str, help="Path to LDPC file.")
-    parser.add_argument("-o", "--output", type=str, help="Output file path.")
+    parser.add_argument(
+        "-b", "--broadcast_time", type=float, help="Broadcast time.", required=True
+    )
+    parser.add_argument(
+        "-l", "--ldpc_path", type=str, default="", help="Path to LDPC file."
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, default="./msg.json", help="Output file path."
+    )
 
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    print(args)
+
     logging.basicConfig(level=logging.INFO)
     handler = satelliteHandler()
     handler.set_alc_path(args.alc)
