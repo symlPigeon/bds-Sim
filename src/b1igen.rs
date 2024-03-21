@@ -3,8 +3,7 @@ use std::io::Write;
 use num_complex::Complex32;
 
 use crate::{
-    constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED},
-    satellite_loader::{Bds2SatelliteInfo, SatelliteLoader},
+    carr_phase::get_carr_phase, constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED}, satellite_loader::{Bds2SatelliteInfo, SatelliteLoader}
 };
 
 pub struct B1iSimulation {
@@ -45,7 +44,7 @@ impl B1iSimulation {
             satellite.init();
         }
         println!("  * Satellites initialized.");
-        let end_time = (self.satellites[0].satellite.sample_length() - 1) as f64 * self.delay_step;
+        let end_time = (self.satellites[0].satellite.sample_length() - 2) as f64 * self.delay_step;
         //                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ^ decrease 1 to avoid overflow
         let iter_nums = (end_time / self.sim_step) as u64;
         let update_interval = (self.delay_step / self.sim_step) as usize;
@@ -98,6 +97,7 @@ pub struct B1iSatelliteWrapper {
     phase_shift: f64,
     delay_step: f64,
     sim_step: f64,
+    cached_phase: Complex32
 }
 
 impl B1iSatelliteWrapper {
@@ -116,6 +116,7 @@ impl B1iSatelliteWrapper {
             phase_shift: 0.0,
             delay_step,
             sim_step,
+            cached_phase: Complex32::new(0.0, 0.0)
         }
     }
 
@@ -146,7 +147,9 @@ impl B1iSatelliteWrapper {
         // calculate phase shift
         // the movement of satellites and receiver will cause phase shift
         let freq_shift = self.doppler_shift();
-        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step;
+        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step; // in 1 sim_step, doppler shift causes phase shift of 2\pi f \Delta t
+        let cached_phase = get_carr_phase(self.delay, BDS2_FREQ);
+        self.cached_phase = Complex32::new(cached_phase.cos() as f32, cached_phase.sin() as f32);
     }
 
     fn update(&mut self) {
@@ -155,7 +158,7 @@ impl B1iSatelliteWrapper {
         self.elevation = self.satellite.get_elevation(self.delay_idx);
         self.delay_idx += 1;
         let freq_shift = self.doppler_shift();
-        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step;
+        self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step; // frequency shift causes phase shift
     }
 
     pub fn simulate(&mut self) -> Complex32 {
@@ -164,7 +167,9 @@ impl B1iSatelliteWrapper {
         let nh_bit = B1I_NH_CODE[nh_idx];
         let msg_bit = self.satellite.get_data_bit(msg_idx);
         let modulation_bit = (prn_bit ^ nh_bit ^ msg_bit) as f32 * 2.0 - 1.0; // to BPSK bits
-        let tx_sample = Complex32::new(modulation_bit, 0.0);
-        tx_sample + Complex32::new(self.phase_shift.cos() as f32, self.phase_shift.sin() as f32)
+        self.cached_phase *= modulation_bit;
+        self.cached_phase += Complex32::new(self.phase_shift.cos() as f32, self.phase_shift.sin() as f32);
+        self.curr_time += self.sim_step;
+        self.cached_phase
     }
 }

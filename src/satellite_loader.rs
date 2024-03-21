@@ -12,7 +12,7 @@ pub struct Bds2SatelliteInfo {
     pub elevation: Vec<f64>,
     pub delay: Vec<f64>,
     pub ref_delay: f64,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
 
 impl Bds2SatelliteInfo {
@@ -26,10 +26,8 @@ impl Bds2SatelliteInfo {
                 .map(|c| c.to_digit(16).ok_or("Invalid hex digit!"))
                 .collect::<Result<Vec<u32>, &str>>()?
                 .into_iter()
-                .map(|d| {
-                    // convert u32 to u8
-                    d as u8
-                })
+                .map(|d| d as u8) // split to bits
+                .flat_map(|d| (0..4).map(move |i| (d >> i) & 1).rev())
                 .collect(),
             None => return Err("Field `data` not found!".to_string()),
         };
@@ -41,10 +39,8 @@ impl Bds2SatelliteInfo {
                 .map(|c| c.to_digit(8).ok_or("Invalid digit!"))
                 .collect::<Result<Vec<u32>, &str>>()?
                 .into_iter()
-                .map(|d| {
-                    // convert u32 to u8
-                    d as u8
-                })
+                .map(|d| d as u8)
+                .flat_map(|d| (0..3).map(move |i| (d >> i) & 1).rev())
                 .collect(),
             None => return Err("Field `prn` not found!".to_string()),
         };
