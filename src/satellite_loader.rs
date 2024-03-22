@@ -68,6 +68,8 @@ impl Bds2SatelliteInfo {
                 .ok_or("Field `ref_delay` is not a Float!")?,
             None => return Err("Field `ref_delay` not found!".to_string()),
         };
+        
+        assert!(elevation.len() == delay.len());
 
         Ok(Bds2SatelliteInfo {
             prn,
@@ -96,16 +98,16 @@ impl Bds2SatelliteInfo {
 
 impl SatelliteLoader for Bds2SatelliteInfo {
     fn get_data_bit(&self, idx: usize) -> u8 {
-        self.data[idx]
+        self.data[idx % self.data.len()]
     }
     fn get_delay(&self, idx: usize) -> f64 {
-        self.delay[idx]
+        self.delay[idx % self.delay.len()]
     }
     fn get_elevation(&self, idx: usize) -> f64 {
-        self.elevation[idx]
+        self.elevation[idx % self.elevation.len()]
     }
     fn get_prn_bit(&self, idx: usize) -> u8 {
-        self.prn[idx]
+        self.prn[idx % self.prn.len()]
     }
     fn ref_delay(&self) -> f64 {
         self.ref_delay

@@ -1,15 +1,15 @@
 use std::io::Write;
 
 use num_complex::Complex32;
+use rayon::prelude::*;
 
 use crate::{
-    carr_phase::get_carr_phase, constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED}, satellite_loader::{Bds2SatelliteInfo, SatelliteLoader}
+    carr_phase::{complex32_from_phase, get_carr_phase, get_carr_phase_shift}, constants::{B1I_NH_CODE, B1I_NH_LEN, B1I_PRN_LEN, BDS2_FREQ, LIGHT_SPEED}, satellite_loader::{Bds2SatelliteInfo, SatelliteLoader}
 };
 
 pub struct B1iSimulation {
     satellites: Vec<B1iSatelliteWrapper>,
     delay_step: f64,
-    sim_data: Vec<Complex32>,
     sim_step: f64,
     file_handler: std::fs::File,
 }
@@ -27,12 +27,10 @@ impl B1iSimulation {
             .map(|x| B1iSatelliteWrapper::new(x, delay_step, 1.0 / sample_rate))
             .collect::<Vec<B1iSatelliteWrapper>>();
         let sim_step = 1.0 / sample_rate;
-        let sim_data = Vec::new();
         let file_handler = std::fs::File::create(output_name).map_err(|e| e.to_string())?;
         Ok(B1iSimulation {
             satellites,
             delay_step,
-            sim_data,
             sim_step,
             file_handler,
         })
@@ -44,46 +42,42 @@ impl B1iSimulation {
             satellite.init();
         }
         println!("  * Satellites initialized.");
-        let end_time = (self.satellites[0].satellite.sample_length() - 2) as f64 * self.delay_step;
+        let end_time = (self.satellites[0].satellite.sample_length() - 1) as f64 * self.delay_step;
         //                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ^ decrease 1 to avoid overflow
         let iter_nums = (end_time / self.sim_step) as u64;
         let update_interval = (self.delay_step / self.sim_step) as usize;
         println!("Simulating for {} seconds...", end_time);
         println!("[3/4] Start simulation...");
         let bar = indicatif::ProgressBar::new(iter_nums);
-        for idx in 0..iter_nums {
+        let batch = 10000;
+        for idx in 0..iter_nums / batch {
             // ! Parallel causes poor performance...
-            // let sample: Complex32 = self.satellites.par_iter_mut().map(|s| s.simulate()).sum();
+            let signals = self.satellites.par_iter_mut().map(|satellite| satellite.simulate(batch as usize)).collect::<Vec<Vec<Complex32>>>();
+            // sum all signals by each time
+            let signal = (0..batch).map(|idx| {
+                signals.iter().map(|s| &s[idx as usize]).sum::<Complex32>()
+            }).collect::<Vec<Complex32>>();
 
-            let mut sample = Complex32::new(0.0, 0.0);
-            for satellite in self.satellites.iter_mut() {
-                sample += satellite.simulate();
-            }
-
-            self.sim_data.push(sample);
-            bar.inc(1);
-            if idx as usize % update_interval == 0 {
+            bar.inc(batch);
+            // update satellite status
+            if (idx * batch) as usize % update_interval == 0 && idx != 0 {
                 for satellite in self.satellites.iter_mut() {
                     satellite.update();
                 }
             }
-            if idx as usize % (update_interval * 10) == 0 && idx != 0 {
-                self.export();
-            }
+            self.export(signal);
         }
         bar.finish();
         println!("[4/4] Stop simulation.");
     }
 
-    fn export(&mut self) {
+    fn export(&mut self, signal: Vec<Complex32>) {
         unsafe {
-            let data_ptr = self.sim_data.as_ptr() as *const u8;
-            let data_len = self.sim_data.len() * std::mem::size_of::<Complex32>();
+            let data_ptr = signal.as_ptr() as *const u8;
+            let data_len = signal.len() * std::mem::size_of::<Complex32>();
             let data = std::slice::from_raw_parts(data_ptr, data_len);
             self.file_handler.write_all(data).unwrap();
         }
-        self.sim_data.clear();
-        assert!(self.sim_data.is_empty());
     }
 }
 
@@ -161,15 +155,28 @@ impl B1iSatelliteWrapper {
         self.phase_shift = 2.0 * std::f64::consts::PI * freq_shift * self.sim_step; // frequency shift causes phase shift
     }
 
-    pub fn simulate(&mut self) -> Complex32 {
-        let (prn_idx, nh_idx, msg_idx) = self.get_idx_by_time(self.curr_time);
-        let prn_bit = self.satellite.get_prn_bit(prn_idx);
-        let nh_bit = B1I_NH_CODE[nh_idx];
-        let msg_bit = self.satellite.get_data_bit(msg_idx);
-        let modulation_bit = (prn_bit ^ nh_bit ^ msg_bit) as f32 * 2.0 - 1.0; // to BPSK bits
-        self.cached_phase *= modulation_bit;
-        self.cached_phase += Complex32::new(self.phase_shift.cos() as f32, self.phase_shift.sin() as f32);
-        self.curr_time += self.sim_step;
-        self.cached_phase
+    pub fn simulate(&mut self, batch: usize) -> Vec<Complex32> {
+        // generate signal of 1 batch here
+        // Step 1. We just generate signal of BPSK, regardless of the impact of satellite movement
+        let signal = (0..batch).map(|idx| {
+            let (prn_idx, nh_idx, msg_idx) = self.get_idx_by_time(self.curr_time + self.sim_step * idx as f64);
+            let prn_bit = (self.satellite.get_data_bit(prn_idx) as f32 - 0.5) * 2.0;
+            let nh_bit = (B1I_NH_CODE[nh_idx] as f32 - 0.5) * 2.0;
+            let msg_bit = (self.satellite.get_data_bit(msg_idx) as f32 - 0.5) * 2.0;
+            let data_bit = prn_bit * nh_bit * msg_bit;
+            Complex32::new(data_bit, 0.0)
+        });
+        // Step 2. We add phase shift to the signal
+        let carr_shift_phase = get_carr_phase_shift(self.delay, self.ref_delay, BDS2_FREQ, self.sim_step);
+        let signal = signal.enumerate().map(|(idx, s)| {
+            let corr_phase = self.cached_phase + complex32_from_phase(carr_shift_phase * idx as f64);
+            s + corr_phase
+        });
+        // Step 3. We apply gain to our output signal.
+        // TODO: This work will be done in the future.
+        let signal = signal.collect::<Vec<Complex32>>();
+        self.curr_time += self.sim_step * batch as f64;
+        self.cached_phase = *signal.last().unwrap();
+        signal
     }
 }
